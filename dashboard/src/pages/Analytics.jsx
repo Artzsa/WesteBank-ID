@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../utils/api';
+import { toast } from 'react-toastify';
 import { 
   TrendingUp, 
   Scale, 
@@ -54,8 +56,8 @@ const Analytics = () => {
     const fetchData = async () => {
       try {
         const [statsRes, stocksRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/collector/stats'),
-          axios.get('http://localhost:5000/api/collector/stocks')
+          axios.get('${API_URL}/collector/stats'),
+          axios.get('${API_URL}/collector/stocks')
         ]);
         setStats(statsRes.data);
         setStocks(stocksRes.data);

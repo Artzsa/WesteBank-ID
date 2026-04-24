@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../utils/api';
 import { Trophy, Medal, Target, TrendingUp, Filter, Calendar } from 'lucide-react';
 
 const Leaderboard = () => {
@@ -9,7 +10,7 @@ const Leaderboard = () => {
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/leaderboard/rt');
+        const res = await axios.get('${API_URL}/leaderboard/rt');
         setLeaderboard(res.data);
       } catch (err) {
         console.error(err);

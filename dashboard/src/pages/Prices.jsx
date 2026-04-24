@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../utils/api';
 import { toast } from 'react-toastify';
 import { Tag, Save, RotateCcw, AlertTriangle, TrendingUp, TrendingDown, Megaphone } from 'lucide-react';
 
@@ -19,7 +20,7 @@ const Prices = () => {
     if (!customMessage.trim()) return toast.error('Ketik pesan dulu boy!');
     setIsCustomBroadcasting(true);
     try {
-      const usersRes = await axios.get('http://localhost:5000/api/users');
+      const usersRes = await axios.get('${API_URL}/users');
       const warga = usersRes.data.filter(u => u.role === 'WARGA');
 
       let successCount = 0;
@@ -56,7 +57,7 @@ const Prices = () => {
 
   const fetchPrices = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/prices');
+      const res = await axios.get('${API_URL}/prices');
       setPrices(res.data);
     } catch (err) {
       toast.error('Gagal mengambil data harga');
@@ -70,7 +71,7 @@ const Prices = () => {
   const handleBroadcastPrice = async (type, price, isUp) => {
     setIsBroadcasting(type);
     try {
-      const usersRes = await axios.get('http://localhost:5000/api/users');
+      const usersRes = await axios.get('${API_URL}/users');
       const warga = usersRes.data.filter(u => u.role === 'WARGA');
 
       const message = isUp 
@@ -117,7 +118,7 @@ const Prices = () => {
   const savePrice = async (type, price) => {
     setIsSaving(true);
     try {
-      await axios.patch(`http://localhost:5000/api/prices/${type}`, { price });
+      await axios.patch(`${API_URL}/prices/${type}`, { price });
       toast.success(`Harga ${type} berhasil diperbarui`);
       fetchPrices();
     } catch (err) {

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../utils/api';
 import { Calendar as CalendarIcon, Clock, MapPin, Truck, CheckCircle2, ChevronRight, AlertCircle, X, Trash2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import DatePicker from 'react-datepicker';
@@ -20,7 +21,7 @@ const Pickups = () => {
 
   const fetchPickups = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/pickups');
+      const res = await axios.get('${API_URL}/pickups');
       setSchedules(res.data);
     } catch (err) {
       console.error(err);
@@ -37,11 +38,11 @@ const Pickups = () => {
         date: format(selectedDate, 'EEEE, dd MMMM yyyy', { locale: id }),
         time: '-'
       };
-      const res = await axios.post('http://localhost:5000/api/pickups', payload);
+      const res = await axios.post('${API_URL}/pickups', payload);
 
       // Kirim notifikasi WA ke semua warga di RT tersebut
       try {
-        const usersRes = await axios.get('http://localhost:5000/api/users');
+        const usersRes = await axios.get('${API_URL}/users');
         const wargaRT = usersRes.data.filter(u => u.role === 'WARGA' && u.rt === formData.rt);
         const pickupMsg = `🚛 *PEMBERITAHUAN PENGAMBILAN SAMPAH* 🚛\n\nHalo Warga *${formData.rt}*!\n\nPetugas pengepul akan datang mengambil sampah pada:\n📅 *${payload.date}*\n\nMohon siapkan sampah Anda di depan rumah ya!\n\nTerima kasih. ♻️🌿`;
         for (const w of wargaRT) {
@@ -67,7 +68,7 @@ const Pickups = () => {
   const handleDeletePickup = async (id) => {
     if (window.confirm('Hapus jadwal ini?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/pickups/${id}`);
+        await axios.delete(`${API_URL}/pickups/${id}`);
         toast.success('Jadwal dihapus');
         fetchPickups();
       } catch (err) {
@@ -78,7 +79,7 @@ const Pickups = () => {
 
   const handleUpdateStatus = async (id, status) => {
     try {
-      await axios.patch(`http://localhost:5000/api/pickups/${id}`, { status });
+      await axios.patch(`${API_URL}/pickups/${id}`, { status });
       toast.success(`Jadwal diupdate ke ${status}`);
       fetchPickups();
     } catch (err) {

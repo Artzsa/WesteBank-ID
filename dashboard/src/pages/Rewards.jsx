@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../utils/api';
 import { toast } from 'react-toastify';
 import { 
   Gift, 
@@ -42,8 +43,8 @@ const Rewards = () => {
   const fetchData = async () => {
     try {
       const [rewardsRes, redemptionsRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/rewards'),
-        axios.get('http://localhost:5000/api/rewards/redemptions')
+        axios.get('${API_URL}/rewards'),
+        axios.get('${API_URL}/rewards/redemptions')
       ]);
       setRewards(rewardsRes.data);
       setRedemptions(redemptionsRes.data);
@@ -81,10 +82,10 @@ const Rewards = () => {
     e.preventDefault();
     try {
       if (editingReward) {
-        await axios.patch(`http://localhost:5000/api/rewards/${editingReward.id}`, formData);
+        await axios.patch(`${API_URL}/rewards/${editingReward.id}`, formData);
         toast.success('Reward berhasil diperbarui!');
       } else {
-        await axios.post('http://localhost:5000/api/rewards', formData);
+        await axios.post('${API_URL}/rewards', formData);
         toast.success('Reward baru ditambahkan!');
       }
       setIsModalOpen(false);
@@ -97,7 +98,7 @@ const Rewards = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Yakin ingin menghapus reward ini?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/rewards/${id}`);
+        await axios.delete(`${API_URL}/rewards/${id}`);
         toast.success('Reward dihapus');
         fetchData();
       } catch (err) {

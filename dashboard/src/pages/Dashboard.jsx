@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../utils/api';
+import { toast } from 'react-toastify';
 import { Package, Trash2, FileText, ArrowUpRight, TrendingUp, Users, Scale, Wallet, CheckCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -15,9 +17,9 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         const [stocksRes, statsRes, pendingRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/collector/stocks'),
-          axios.get('http://localhost:5000/api/collector/stats'),
-          axios.get('http://localhost:5000/api/waste/pending')
+          axios.get('${API_URL}/collector/stocks'),
+          axios.get('${API_URL}/collector/stats'),
+          axios.get('${API_URL}/waste/pending')
         ]);
         setStocks(stocksRes.data);
         setStats({ ...statsRes.data, pendingSubmissions: pendingRes.data.length });

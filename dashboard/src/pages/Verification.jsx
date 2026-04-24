@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../utils/api';
 import { toast } from 'react-toastify';
 import { CheckCircle, XCircle, Clock, Weight, Maximize2, Check, Filter, Phone, MapPin, CheckSquare } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -28,7 +29,7 @@ const Verification = () => {
 
   const fetchSubmissions = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/waste/pending');
+      const res = await axios.get('${API_URL}/waste/pending');
       setSubmissions(res.data);
     } catch (err) {
       console.error(err);
@@ -39,7 +40,7 @@ const Verification = () => {
 
   const fetchPrices = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/prices');
+      const res = await axios.get('${API_URL}/prices');
       const priceMap = {};
       res.data.forEach(p => {
         priceMap[p.type] = p.price;
@@ -71,7 +72,7 @@ const Verification = () => {
       const grossPoints = weight * basePrice * multiplier;
       const netPoints = Math.round(grossPoints * (1 - OPERATIONAL_CUT));
 
-      await axios.patch(`http://localhost:5000/api/waste/${id}/verify`, {
+      await axios.patch(`${API_URL}/waste/${id}/verify`, {
         status,
         pointsAwarded: netPoints,
         weightKg: parseFloat(weight),

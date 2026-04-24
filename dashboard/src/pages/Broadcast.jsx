@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../utils/api';
 import { toast } from 'react-toastify';
 import { 
   Megaphone, 
@@ -33,7 +34,7 @@ const Broadcast = () => {
   const handleGenerateAI = async () => {
     setIsGeneratingAI(true);
     try {
-      const res = await axios.post('http://localhost:5000/api/ai/generate-tip', {
+      const res = await axios.post('${API_URL}/ai/generate-tip', {
         topic: 'Daur ulang sampah rumah tangga kreatif'
       });
       if (res.data.success) {
@@ -108,8 +109,8 @@ const Broadcast = () => {
   const fetchData = async () => {
     try {
       const [usersRes, historyRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/users'),
-        axios.get('http://localhost:5000/api/broadcast/history')
+        axios.get('${API_URL}/users'),
+        axios.get('${API_URL}/broadcast/history')
       ]);
       setUsers(usersRes.data.filter(u => u.role === 'WARGA'));
       setHistory(historyRes.data);
@@ -180,7 +181,7 @@ const Broadcast = () => {
       }
 
       // Log to Backend
-      await axios.post('http://localhost:5000/api/broadcast/log', {
+      await axios.post('${API_URL}/broadcast/log', {
         title: template.title,
         message: template.message,
         targetCount: filteredUsers.length

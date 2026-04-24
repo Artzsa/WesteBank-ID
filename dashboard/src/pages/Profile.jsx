@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_URL from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { User, Phone, MapPin, Shield, Calendar, Award } from 'lucide-react';
 
@@ -11,7 +12,7 @@ const Profile = () => {
     if (user?.id) {
       const fetchStats = async () => {
         try {
-          const res = await axios.get(`http://localhost:5000/api/users/${user.id}/stats`);
+          const res = await axios.get(`${API_URL}/users/${user.id}/stats`);
           setStats(res.data);
         } catch (err) {
           console.error('Failed to fetch user stats:', err);

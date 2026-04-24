@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API_URL from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { Phone, ArrowRight, ShieldCheck } from 'lucide-react';
@@ -15,7 +16,7 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:5000/api/users/login', { phoneNumber });
+      const res = await axios.post(`${API_URL}/users/login`, { phoneNumber });
       login(res.data);
       toast.success(`Selamat datang, ${res.data.name}!`);
       navigate('/');

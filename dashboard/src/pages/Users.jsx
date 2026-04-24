@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Users as UsersIcon, Search, UserPlus, Phone, MapPin, Award, Trash2, Edit, X, CheckSquare, TrendingUp } from 'lucide-react';
+import API_URL from '../utils/api';
 import { toast } from 'react-toastify';
 
 const Users = () => {
@@ -29,7 +30,7 @@ const Users = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/users');
+      const res = await axios.get('${API_URL}/users');
       setUsers(res.data);
     } catch (err) {
       console.error(err);
@@ -117,10 +118,10 @@ const Users = () => {
     e.preventDefault();
     try {
       if (isEditMode) {
-        await axios.patch(`http://localhost:5000/api/users/${selectedUserId}`, formData);
+        await axios.patch(`${API_URL}/users/${selectedUserId}`, formData);
         toast.success('Data warga berhasil diperbarui');
       } else {
-        await axios.post('http://localhost:5000/api/users/register', formData);
+        await axios.post('${API_URL}/users/register', formData);
         toast.success('Warga berhasil didaftarkan');
       }
       setIsModalOpen(false);
@@ -134,7 +135,7 @@ const Users = () => {
   const handleDeleteUser = async (id) => {
     if (window.confirm('Yakin ingin menghapus warga ini?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/users/${id}`);
+        await axios.delete(`${API_URL}/users/${id}`);
         toast.success('Warga berhasil dihapus');
         fetchUsers();
       } catch (err) {
