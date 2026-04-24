@@ -46,7 +46,7 @@ const Pickups = () => {
         const wargaRT = usersRes.data.filter(u => u.role === 'WARGA' && u.rt === formData.rt);
         const pickupMsg = `🚛 *PEMBERITAHUAN PENGAMBILAN SAMPAH* 🚛\n\nHalo Warga *${formData.rt}*!\n\nPetugas pengepul akan datang mengambil sampah pada:\n📅 *${payload.date}*\n\nMohon siapkan sampah Anda di depan rumah ya!\n\nTerima kasih. ♻️🌿`;
         for (const w of wargaRT) {
-          axios.post('http://127.0.0.1:5001/send-message', {
+          axios.post(`${API_URL}/bot/send-message`, {
             phoneNumber: w.phoneNumber,
             message: pickupMsg
           }).catch(err => console.error('Notif pickup error:', err.message));

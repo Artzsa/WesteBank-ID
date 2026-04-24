@@ -162,7 +162,7 @@ const Broadcast = () => {
 
         try {
           // Note: In production this would call your WA service
-          const res = await axios.post('http://127.0.0.1:5001/send-message', {
+          const res = await axios.post(`${API_URL}/bot/send-message`, {
             phoneNumber: u.phoneNumber,
             message: finalMsg
           });

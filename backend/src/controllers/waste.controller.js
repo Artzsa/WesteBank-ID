@@ -108,6 +108,8 @@ const verifySubmission = async (req, res) => {
       return updatedSubmission;
     });
 
+    const BOT_URL = process.env.BOT_API_URL || 'http://127.0.0.1:5001';
+
     // --- NOTIFIKASI BERANTAI ---
     if (status === 'VERIFIED') {
       try {
@@ -115,7 +117,7 @@ const verifySubmission = async (req, res) => {
         const adminMsg = `💼 *PERSETUJUAN DIBUTUHKAN* 💼\n\nData timbangan baru masuk dari Pengepul!\n\n👤 Warga: ${submission.user.name}\n⚖️ Berat: ${weightKg} Kg\n📦 Jenis: ${actualType}\n\nSilakan tinjau dan cairkan poinnya di sini:\n🔗 http://localhost:5173/verification`;
         
         for (const admin of admins) {
-          axios.post('http://127.0.0.1:5001/send-message', {
+          axios.post(`${BOT_URL}/send-message`, {
             phoneNumber: admin.phoneNumber,
             message: adminMsg
           }).catch(err => console.error('Bot Error Notify Admin:', err.message));
@@ -136,7 +138,7 @@ const verifySubmission = async (req, res) => {
 
         waMsg += `\n\n🚚 Info: Petugas akan menjemput sampah Anda hari ini. Mohon siapkan sampah di depan rumah.\n\nTerima kasih telah menjadi pahlawan lingkungan! 🌿`;
         
-        axios.post('http://127.0.0.1:5001/send-message', {
+        axios.post(`${BOT_URL}/send-message`, {
           phoneNumber: submission.user.phoneNumber,
           message: waMsg
         }).catch(err => console.error('Gagal kirim WA Konfirmasi:', err.message));

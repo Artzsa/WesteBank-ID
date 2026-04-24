@@ -27,7 +27,7 @@ const Prices = () => {
       for (let i = 0; i < warga.length; i++) {
         const w = warga[i];
         try {
-          const res = await axios.post('http://127.0.0.1:5001/send-message', {
+          const res = await axios.post(`${API_URL}/bot/send-message`, {
             phoneNumber: w.phoneNumber,
             message: customMessage
           });
@@ -82,7 +82,7 @@ const Prices = () => {
       for (let i = 0; i < warga.length; i++) {
         const w = warga[i];
         try {
-          const res = await axios.post('http://127.0.0.1:5001/send-message', {
+          const res = await axios.post(`${API_URL}/bot/send-message`, {
             phoneNumber: w.phoneNumber,
             message: message
           });

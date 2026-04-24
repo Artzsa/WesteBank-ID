@@ -96,6 +96,7 @@ const priceRoutes = require('./routes/price.routes');
 const aiRoutes = require('./routes/ai.routes');
 const broadcastRoutes = require('./routes/broadcast.routes');
 const rewardRoutes = require('./routes/reward.routes');
+const botRoutes = require('./routes/bot.routes');
 const priceController = require('./controllers/price.controller');
 const backupService = require('./services/backup.service');
 
@@ -111,6 +112,7 @@ app.use('/api/prices', priceRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/broadcast', broadcastRoutes);
 app.use('/api/rewards', rewardRoutes);
+app.use('/api/bot', botRoutes);
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running on http://localhost:${PORT}`);
