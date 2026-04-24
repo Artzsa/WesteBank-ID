@@ -22,7 +22,11 @@ const Dashboard = () => {
           axios.get(`${API_URL}/waste/pending`)
         ]);
         setStocks(stocksRes.data);
-        setStats({ ...statsRes.data, pendingSubmissions: pendingRes.data.length });
+        const filteredPending = pendingRes.data.filter(sub => {
+          if (isAdmin) return sub.status === 'VERIFIED';
+          return sub.status === 'PENDING';
+        });
+        setStats({ ...statsRes.data, pendingSubmissions: filteredPending.length });
       } catch (err) {
         console.error(err);
       } finally {
