@@ -16,7 +16,7 @@ const Finances = () => {
 
   const fetchStats = async () => {
     try {
-      const res = await axios.get('${API_URL}/waste/stats/finance');
+      const res = await axios.get(`${API_URL}/waste/stats/finance`);
       setStats(res.data);
     } catch (err) {
       console.error(err);

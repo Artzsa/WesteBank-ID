@@ -29,7 +29,7 @@ const Verification = () => {
 
   const fetchSubmissions = async () => {
     try {
-      const res = await axios.get('${API_URL}/waste/pending');
+      const res = await axios.get(`${API_URL}/waste/pending`);
       setSubmissions(res.data);
     } catch (err) {
       console.error(err);
@@ -40,7 +40,7 @@ const Verification = () => {
 
   const fetchPrices = async () => {
     try {
-      const res = await axios.get('${API_URL}/prices');
+      const res = await axios.get(`${API_URL}/prices`);
       const priceMap = {};
       res.data.forEach(p => {
         priceMap[p.type] = p.price;

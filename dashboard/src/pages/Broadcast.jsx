@@ -34,7 +34,7 @@ const Broadcast = () => {
   const handleGenerateAI = async () => {
     setIsGeneratingAI(true);
     try {
-      const res = await axios.post('${API_URL}/ai/generate-tip', {
+      const res = await axios.post(`${API_URL}/ai/generate-tip`, {
         topic: 'Daur ulang sampah rumah tangga kreatif'
       });
       if (res.data.success) {
@@ -109,8 +109,8 @@ const Broadcast = () => {
   const fetchData = async () => {
     try {
       const [usersRes, historyRes] = await Promise.all([
-        axios.get('${API_URL}/users'),
-        axios.get('${API_URL}/broadcast/history')
+        axios.get(`${API_URL}/users`),
+        axios.get(`${API_URL}/broadcast/history`)
       ]);
       setUsers(usersRes.data.filter(u => u.role === 'WARGA'));
       setHistory(historyRes.data);
@@ -181,7 +181,7 @@ const Broadcast = () => {
       }
 
       // Log to Backend
-      await axios.post('${API_URL}/broadcast/log', {
+      await axios.post(`${API_URL}/broadcast/log`, {
         title: template.title,
         message: template.message,
         targetCount: filteredUsers.length

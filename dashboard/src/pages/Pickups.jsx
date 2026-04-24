@@ -21,7 +21,7 @@ const Pickups = () => {
 
   const fetchPickups = async () => {
     try {
-      const res = await axios.get('${API_URL}/pickups');
+      const res = await axios.get(`${API_URL}/pickups`);
       setSchedules(res.data);
     } catch (err) {
       console.error(err);
@@ -38,11 +38,11 @@ const Pickups = () => {
         date: format(selectedDate, 'EEEE, dd MMMM yyyy', { locale: id }),
         time: '-'
       };
-      const res = await axios.post('${API_URL}/pickups', payload);
+      const res = await axios.post(`${API_URL}/pickups`, payload);
 
       // Kirim notifikasi WA ke semua warga di RT tersebut
       try {
-        const usersRes = await axios.get('${API_URL}/users');
+        const usersRes = await axios.get(`${API_URL}/users`);
         const wargaRT = usersRes.data.filter(u => u.role === 'WARGA' && u.rt === formData.rt);
         const pickupMsg = `🚛 *PEMBERITAHUAN PENGAMBILAN SAMPAH* 🚛\n\nHalo Warga *${formData.rt}*!\n\nPetugas pengepul akan datang mengambil sampah pada:\n📅 *${payload.date}*\n\nMohon siapkan sampah Anda di depan rumah ya!\n\nTerima kasih. ♻️🌿`;
         for (const w of wargaRT) {

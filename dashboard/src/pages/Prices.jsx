@@ -20,7 +20,7 @@ const Prices = () => {
     if (!customMessage.trim()) return toast.error('Ketik pesan dulu boy!');
     setIsCustomBroadcasting(true);
     try {
-      const usersRes = await axios.get('${API_URL}/users');
+      const usersRes = await axios.get(`${API_URL}/users`);
       const warga = usersRes.data.filter(u => u.role === 'WARGA');
 
       let successCount = 0;
@@ -57,7 +57,7 @@ const Prices = () => {
 
   const fetchPrices = async () => {
     try {
-      const res = await axios.get('${API_URL}/prices');
+      const res = await axios.get(`${API_URL}/prices`);
       setPrices(res.data);
     } catch (err) {
       toast.error('Gagal mengambil data harga');
@@ -71,7 +71,7 @@ const Prices = () => {
   const handleBroadcastPrice = async (type, price, isUp) => {
     setIsBroadcasting(type);
     try {
-      const usersRes = await axios.get('${API_URL}/users');
+      const usersRes = await axios.get(`${API_URL}/users`);
       const warga = usersRes.data.filter(u => u.role === 'WARGA');
 
       const message = isUp 

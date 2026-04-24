@@ -43,8 +43,8 @@ const Rewards = () => {
   const fetchData = async () => {
     try {
       const [rewardsRes, redemptionsRes] = await Promise.all([
-        axios.get('${API_URL}/rewards'),
-        axios.get('${API_URL}/rewards/redemptions')
+        axios.get(`${API_URL}/rewards`),
+        axios.get(`${API_URL}/rewards/redemptions`)
       ]);
       setRewards(rewardsRes.data);
       setRedemptions(redemptionsRes.data);
@@ -85,7 +85,7 @@ const Rewards = () => {
         await axios.patch(`${API_URL}/rewards/${editingReward.id}`, formData);
         toast.success('Reward berhasil diperbarui!');
       } else {
-        await axios.post('${API_URL}/rewards', formData);
+        await axios.post(`${API_URL}/rewards`, formData);
         toast.success('Reward baru ditambahkan!');
       }
       setIsModalOpen(false);

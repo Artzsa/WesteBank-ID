@@ -17,9 +17,9 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         const [stocksRes, statsRes, pendingRes] = await Promise.all([
-          axios.get('${API_URL}/collector/stocks'),
-          axios.get('${API_URL}/collector/stats'),
-          axios.get('${API_URL}/waste/pending')
+          axios.get(`${API_URL}/collector/stocks`),
+          axios.get(`${API_URL}/collector/stats`),
+          axios.get(`${API_URL}/waste/pending`)
         ]);
         setStocks(stocksRes.data);
         setStats({ ...statsRes.data, pendingSubmissions: pendingRes.data.length });

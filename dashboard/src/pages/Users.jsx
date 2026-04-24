@@ -30,7 +30,7 @@ const Users = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get('${API_URL}/users');
+      const res = await axios.get(`${API_URL}/users`);
       setUsers(res.data);
     } catch (err) {
       console.error(err);
@@ -121,7 +121,7 @@ const Users = () => {
         await axios.patch(`${API_URL}/users/${selectedUserId}`, formData);
         toast.success('Data warga berhasil diperbarui');
       } else {
-        await axios.post('${API_URL}/users/register', formData);
+        await axios.post(`${API_URL}/users/register`, formData);
         toast.success('Warga berhasil didaftarkan');
       }
       setIsModalOpen(false);

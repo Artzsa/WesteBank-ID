@@ -56,8 +56,8 @@ const Analytics = () => {
     const fetchData = async () => {
       try {
         const [statsRes, stocksRes] = await Promise.all([
-          axios.get('${API_URL}/collector/stats'),
-          axios.get('${API_URL}/collector/stocks')
+          axios.get(`${API_URL}/collector/stats`),
+          axios.get(`${API_URL}/collector/stocks`)
         ]);
         setStats(statsRes.data);
         setStocks(stocksRes.data);
