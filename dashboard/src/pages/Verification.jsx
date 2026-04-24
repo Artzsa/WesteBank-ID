@@ -16,7 +16,7 @@ const WASTE_TYPES = [
 
 const Verification = () => {
   const { user } = useAuth();
-  const isAdmin = user?.role === 'ADMIN';
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
 
   const [submissions, setSubmissions] = useState([]);
   const [prices, setPrices] = useState({});

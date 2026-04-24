@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const isAdmin = user?.role === 'ADMIN';
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
   
   const [stocks, setStocks] = useState([]);
   const [stats, setStats] = useState({ totalUsers: 0, totalPoints: 0, totalWeightKg: 0, totalWithdrawals: 0, pendingSubmissions: 0 });
