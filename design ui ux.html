@@ -1,0 +1,859 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green: #3B6D11;
+  --green-light: #EAF3DE;
+  --green-mid: #639922;
+  --teal: #0F6E56;
+  --teal-light: #E1F5EE;
+  --teal-mid: #1D9E75;
+  --amber: #BA7517;
+  --amber-light: #FAEEDA;
+  --amber-mid: #EF9F27;
+  --coral: #993C1D;
+  --coral-light: #FAECE7;
+  --font: 'Plus Jakarta Sans', sans-serif;
+}
+
+body { font-family: var(--font); background: transparent; }
+
+.screen-tabs {
+  display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
+}
+.tab-btn {
+  padding: 6px 16px; border-radius: 20px; border: 0.5px solid var(--color-border-secondary);
+  background: var(--color-background-primary); font-size: 13px; font-weight: 500;
+  cursor: pointer; color: var(--color-text-secondary); transition: all 0.2s;
+}
+.tab-btn.active {
+  background: var(--green); color: #fff; border-color: var(--green);
+}
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ===== MOBILE MOCKUP ===== */
+.device-wrap {
+  display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start;
+}
+.phone-frame {
+  width: 240px; flex-shrink: 0;
+  background: #1a1a1a; border-radius: 36px; padding: 10px;
+  box-shadow: 0 0 0 1px #333;
+}
+.phone-screen {
+  border-radius: 28px; overflow: hidden; background: #f8faf6;
+  min-height: 480px; position: relative;
+}
+
+/* Mobile Home */
+.mob-header {
+  background: var(--green); padding: 20px 16px 28px;
+  color: #fff; position: relative; overflow: hidden;
+}
+.mob-header::after {
+  content: ''; position: absolute; right: -20px; top: -20px;
+  width: 100px; height: 100px; border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+}
+.mob-header-top {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;
+}
+.mob-logo { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
+.mob-notif {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;
+}
+.mob-notif-dot { width: 5px; height: 5px; background: #fff; border-radius: 50%; }
+.mob-greeting { font-size: 10px; opacity: 0.8; margin-bottom: 2px; }
+.mob-name { font-size: 13px; font-weight: 600; }
+.mob-points-card {
+  background: rgba(255,255,255,0.15); border-radius: 12px;
+  padding: 10px 12px; margin-top: 12px; backdrop-filter: blur(4px);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.mob-points-label { font-size: 9px; opacity: 0.8; }
+.mob-points-val { font-size: 20px; font-weight: 700; line-height: 1; }
+.mob-points-unit { font-size: 8px; opacity: 0.7; }
+.mob-poin-btn {
+  background: var(--amber-mid); color: #412402;
+  font-size: 9px; font-weight: 600; padding: 5px 10px;
+  border-radius: 20px; border: none; cursor: pointer;
+}
+
+.mob-body { padding: 14px 12px; }
+.mob-section-title {
+  font-size: 10px; font-weight: 600; color: var(--color-text-secondary);
+  letter-spacing: 0.4px; text-transform: uppercase; margin-bottom: 10px;
+}
+
+.mob-quick-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px;
+}
+.mob-quick-card {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: 12px; padding: 10px; text-align: center;
+}
+.mob-quick-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; margin: 0 auto 6px;
+}
+.mob-quick-label { font-size: 9px; font-weight: 500; color: var(--color-text-secondary); }
+
+.mob-submission {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: 12px; padding: 10px; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.mob-sub-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.mob-sub-info { flex: 1; }
+.mob-sub-type { font-size: 10px; font-weight: 600; color: var(--color-text-primary); }
+.mob-sub-date { font-size: 9px; color: var(--color-text-secondary); }
+.mob-sub-pts { font-size: 10px; font-weight: 600; color: var(--green); }
+
+.mob-setor-btn {
+  position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+  background: var(--green); color: #fff;
+  font-size: 11px; font-weight: 700; padding: 10px 28px;
+  border-radius: 24px; border: none; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(59,109,17,0.35);
+  white-space: nowrap;
+}
+
+/* Leaderboard mobile */
+.mob-lb-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 0; border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+.mob-lb-rank {
+  width: 20px; text-align: center; font-size: 10px; font-weight: 700;
+  color: var(--color-text-secondary);
+}
+.mob-lb-rank.gold { color: #BA7517; }
+.mob-lb-rank.silver { color: #888; }
+.mob-lb-rank.bronze { color: #993C1D; }
+.mob-lb-bar-wrap { flex: 1; }
+.mob-lb-rtname { font-size: 10px; font-weight: 600; margin-bottom: 3px; color: var(--color-text-primary); }
+.mob-lb-bar { height: 5px; border-radius: 3px; background: var(--green-light); overflow: hidden; }
+.mob-lb-fill { height: 100%; border-radius: 3px; background: var(--green-mid); }
+.mob-lb-score { font-size: 9px; font-weight: 600; color: var(--green); }
+
+/* ===== TABLET ===== */
+.tablet-frame {
+  width: 540px; background: #1a1a1a; border-radius: 20px; padding: 10px;
+  box-shadow: 0 0 0 1px #333; flex-shrink: 0;
+}
+.tablet-screen {
+  border-radius: 14px; overflow: hidden; background: #f8faf6; min-height: 400px;
+}
+.tab-header {
+  background: var(--green); padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.tab-logo { color: #fff; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; }
+.tab-nav { display: flex; gap: 16px; }
+.tab-nav-item {
+  color: rgba(255,255,255,0.7); font-size: 11px; font-weight: 500; cursor: pointer;
+}
+.tab-nav-item.active { color: #fff; border-bottom: 1.5px solid rgba(255,255,255,0.8); padding-bottom: 2px; }
+
+.tab-stats { display: flex; gap: 10px; padding: 14px 20px; }
+.tab-stat-card {
+  flex: 1; background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: 10px; padding: 10px 12px;
+}
+.tab-stat-label { font-size: 9px; color: var(--color-text-secondary); font-weight: 500; letter-spacing: 0.3px; text-transform: uppercase; margin-bottom: 4px; }
+.tab-stat-val { font-size: 18px; font-weight: 700; color: var(--color-text-primary); }
+.tab-stat-sub { font-size: 9px; color: var(--color-text-secondary); }
+
+.tab-two-col { display: flex; gap: 12px; padding: 0 20px 16px; }
+.tab-col-main { flex: 2; }
+.tab-col-side { flex: 1; }
+
+.tab-section { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: 10px; padding: 12px; margin-bottom: 10px; }
+.tab-section-hd { font-size: 11px; font-weight: 600; margin-bottom: 10px; color: var(--color-text-primary); }
+
+.tab-photo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.tab-photo {
+  border-radius: 8px; aspect-ratio: 1; display: flex;
+  align-items: center; justify-content: center; font-size: 18px;
+  position: relative; overflow: hidden;
+}
+.tab-photo-badge {
+  position: absolute; bottom: 4px; left: 4px;
+  font-size: 8px; font-weight: 600; padding: 2px 6px;
+  border-radius: 6px;
+}
+.tab-photo-verify {
+  position: absolute; top: 4px; right: 4px;
+  width: 16px; height: 16px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: 8px;
+}
+
+.tab-rt-item {
+  display: flex; align-items: center; gap: 8px; padding: 6px 0;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+.tab-rt-name { font-size: 10px; font-weight: 600; flex: 1; color: var(--color-text-primary); }
+.tab-rt-kg { font-size: 10px; color: var(--color-text-secondary); }
+.tab-rt-pickup {
+  font-size: 8px; font-weight: 600; padding: 3px 8px;
+  border-radius: 6px; border: none; cursor: pointer;
+  background: var(--teal-light); color: var(--teal);
+}
+
+/* ===== DESKTOP ===== */
+.desktop-frame {
+  width: 100%; background: #f8faf6;
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: 12px; overflow: hidden;
+}
+.desk-layout { display: flex; min-height: 500px; }
+
+.desk-sidebar {
+  width: 180px; background: var(--green); flex-shrink: 0;
+  padding: 0;
+}
+.desk-sb-logo {
+  padding: 20px 16px 16px; border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.desk-sb-logo-text { color: #fff; font-size: 14px; font-weight: 700; letter-spacing: 0.5px; }
+.desk-sb-logo-sub { color: rgba(255,255,255,0.6); font-size: 9px; }
+
+.desk-sb-nav { padding: 12px 10px; }
+.desk-sb-section { font-size: 8px; letter-spacing: 0.6px; color: rgba(255,255,255,0.5); text-transform: uppercase; font-weight: 600; padding: 0 6px; margin-bottom: 4px; margin-top: 10px; }
+.desk-nav-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 6px; border-radius: 8px; cursor: pointer;
+  color: rgba(255,255,255,0.75); font-size: 11px; font-weight: 500;
+  transition: all 0.15s; margin-bottom: 1px;
+}
+.desk-nav-item.active { background: rgba(255,255,255,0.15); color: #fff; }
+.desk-nav-icon { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 9px; }
+
+.desk-main { flex: 1; overflow: hidden; }
+.desk-topbar {
+  background: var(--color-background-primary); border-bottom: 0.5px solid var(--color-border-tertiary);
+  padding: 12px 20px; display: flex; justify-content: space-between; align-items: center;
+}
+.desk-topbar-title { font-size: 14px; font-weight: 600; color: var(--color-text-primary); }
+.desk-topbar-sub { font-size: 11px; color: var(--color-text-secondary); }
+.desk-topbar-actions { display: flex; gap: 8px; align-items: center; }
+.desk-action-btn {
+  padding: 6px 14px; border-radius: 8px; font-size: 11px; font-weight: 600;
+  border: none; cursor: pointer;
+}
+.desk-action-primary { background: var(--green); color: #fff; }
+.desk-action-secondary { background: var(--color-background-secondary); color: var(--color-text-primary); border: 0.5px solid var(--color-border-tertiary); }
+
+.desk-content { padding: 16px 20px; }
+.desk-kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+.desk-kpi {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: 10px; padding: 12px 14px;
+}
+.desk-kpi-label { font-size: 10px; color: var(--color-text-secondary); font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 4px; }
+.desk-kpi-val { font-size: 22px; font-weight: 700; color: var(--color-text-primary); line-height: 1.1; }
+.desk-kpi-change { font-size: 10px; margin-top: 2px; }
+.desk-kpi-change.up { color: var(--green); }
+.desk-kpi-change.down { color: var(--coral); }
+
+.desk-bottom-row { display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; }
+.desk-card {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: 10px; padding: 14px 16px;
+}
+.desk-card-hd {
+  font-size: 12px; font-weight: 600; color: var(--color-text-primary);
+  margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
+}
+.desk-card-action { font-size: 10px; color: var(--green); font-weight: 500; cursor: pointer; }
+
+.desk-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.desk-table th {
+  text-align: left; padding: 6px 8px;
+  color: var(--color-text-secondary); font-weight: 500;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.3px;
+}
+.desk-table td { padding: 7px 8px; border-bottom: 0.5px solid var(--color-border-tertiary); color: var(--color-text-primary); }
+.desk-table tr:last-child td { border-bottom: none; }
+
+.status-badge {
+  font-size: 9px; font-weight: 600; padding: 3px 8px; border-radius: 6px; white-space: nowrap;
+}
+.status-approved { background: var(--teal-light); color: var(--teal); }
+.status-pending { background: var(--amber-light); color: var(--amber); }
+.status-rejected { background: var(--coral-light); color: var(--coral); }
+
+.desk-mini-lb { }
+.desk-lb-item {
+  display: flex; align-items: center; gap: 10px; padding: 8px 0;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+.desk-lb-item:last-child { border-bottom: none; }
+.desk-lb-rank {
+  width: 22px; height: 22px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+}
+.rank-1 { background: #FAEEDA; color: #BA7517; }
+.rank-2 { background: #f1f1f1; color: #666; }
+.rank-3 { background: #FAECE7; color: #993C1D; }
+.rank-n { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+.desk-lb-rt { flex: 1; }
+.desk-lb-rtname { font-size: 11px; font-weight: 600; color: var(--color-text-primary); }
+.desk-lb-kelurahan { font-size: 10px; color: var(--color-text-secondary); }
+.desk-lb-score-bar { width: 80px; }
+.desk-lb-bar-bg { height: 5px; background: var(--color-background-secondary); border-radius: 3px; margin-bottom: 2px; }
+.desk-lb-bar-fill { height: 5px; border-radius: 3px; background: var(--green-mid); }
+.desk-lb-pts { font-size: 10px; font-weight: 600; color: var(--green); text-align: right; }
+
+.chart-bars { display: flex; align-items: flex-end; gap: 6px; height: 80px; margin: 12px 0 6px; }
+.chart-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.chart-bar { width: 100%; border-radius: 4px 4px 0 0; background: var(--green-light); transition: background 0.2s; }
+.chart-bar.highlight { background: var(--green-mid); }
+.chart-label { font-size: 9px; color: var(--color-text-secondary); }
+.chart-val { font-size: 8px; font-weight: 600; color: var(--color-text-secondary); }
+</style>
+
+<h2 class="sr-only">WasteBank ID — UI/UX Design Preview for Mobile, Tablet, dan Desktop</h2>
+
+<div style="padding: 1rem 0;">
+  <div class="screen-tabs">
+    <button class="tab-btn active" onclick="showScreen('mobile')">Mobile — Warga</button>
+    <button class="tab-btn" onclick="showScreen('tablet')">Tablet — Pengepul</button>
+    <button class="tab-btn" onclick="showScreen('desktop')">Desktop — Admin</button>
+  </div>
+
+  <!-- MOBILE -->
+  <div class="screen active" id="scr-mobile">
+    <div class="device-wrap">
+      <!-- Phone 1: Home -->
+      <div>
+        <p style="font-size: 11px; color: var(--color-text-secondary); margin-bottom: 8px; font-weight: 500;">Halaman Utama</p>
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="mob-header">
+              <div class="mob-header-top">
+                <span class="mob-logo">WasteBank ID</span>
+                <div class="mob-notif"><div class="mob-notif-dot"></div></div>
+              </div>
+              <div class="mob-greeting">Selamat pagi,</div>
+              <div class="mob-name">Ibu Siti Rahayu</div>
+              <div class="mob-points-card">
+                <div>
+                  <div class="mob-points-label">Total Poin Kamu</div>
+                  <div class="mob-points-val">1.240 <span class="mob-points-unit">pts</span></div>
+                  <div style="font-size:8px;opacity:0.7;margin-top:2px;">≈ Rp 24.800</div>
+                </div>
+                <button class="mob-poin-btn">Tukar Poin</button>
+              </div>
+            </div>
+            <div class="mob-body">
+              <div class="mob-section-title">Menu Cepat</div>
+              <div class="mob-quick-grid">
+                <div class="mob-quick-card">
+                  <div class="mob-quick-icon" style="background:var(--teal-light);">♻</div>
+                  <div class="mob-quick-label">Setor Sampah</div>
+                </div>
+                <div class="mob-quick-card">
+                  <div class="mob-quick-icon" style="background:var(--amber-light);">⭐</div>
+                  <div class="mob-quick-label">Leaderboard</div>
+                </div>
+                <div class="mob-quick-card">
+                  <div class="mob-quick-icon" style="background:var(--coral-light);">📋</div>
+                  <div class="mob-quick-label">Riwayat</div>
+                </div>
+                <div class="mob-quick-card">
+                  <div class="mob-quick-icon" style="background:var(--green-light);">🏪</div>
+                  <div class="mob-quick-label">Voucher</div>
+                </div>
+              </div>
+              <div class="mob-section-title">Riwayat Terbaru</div>
+              <div class="mob-submission">
+                <div class="mob-sub-dot" style="background:var(--teal-mid);"></div>
+                <div class="mob-sub-info">
+                  <div class="mob-sub-type">Plastik • 1.2 kg</div>
+                  <div class="mob-sub-date">Hari ini, 08.30</div>
+                </div>
+                <div class="mob-sub-pts">+60 pts</div>
+              </div>
+              <div class="mob-submission">
+                <div class="mob-sub-dot" style="background:var(--amber-mid);"></div>
+                <div class="mob-sub-info">
+                  <div class="mob-sub-type">Kertas • 0.8 kg</div>
+                  <div class="mob-sub-date">Kemarin, 14.15</div>
+                </div>
+                <div class="mob-sub-pts">+32 pts</div>
+              </div>
+            </div>
+            <button class="mob-setor-btn">+ Setor Sampah</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phone 2: Leaderboard -->
+      <div>
+        <p style="font-size: 11px; color: var(--color-text-secondary); margin-bottom: 8px; font-weight: 500;">Leaderboard RT</p>
+        <div class="phone-frame">
+          <div class="phone-screen">
+            <div class="mob-header" style="padding-bottom: 16px;">
+              <div class="mob-header-top">
+                <span class="mob-logo">Leaderboard</span>
+                <div style="font-size:9px;background:rgba(255,255,255,0.2);padding:3px 8px;border-radius:10px;color:#fff;">Bulan Ini</div>
+              </div>
+              <div style="margin-top:10px;font-size:9px;opacity:0.8;">RT terbersih mendapat hadiah voucher!</div>
+            </div>
+            <div class="mob-body">
+              <div style="background:var(--amber-light);border-radius:10px;padding:10px 12px;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+                <div style="font-size:20px;">🏆</div>
+                <div>
+                  <div style="font-size:10px;font-weight:700;color:#412402;">RT 03/RW 02 — Kamu!</div>
+                  <div style="font-size:9px;color:#633806;">Ranking #2 bulan ini</div>
+                </div>
+              </div>
+              <div class="mob-section-title">Top RT Kelurahan</div>
+              <div class="mob-lb-item">
+                <div class="mob-lb-rank gold">#1</div>
+                <div class="mob-lb-bar-wrap">
+                  <div class="mob-lb-rtname">RT 07/RW 04</div>
+                  <div class="mob-lb-bar"><div class="mob-lb-fill" style="width:95%;"></div></div>
+                </div>
+                <div class="mob-lb-score">4.750</div>
+              </div>
+              <div class="mob-lb-item">
+                <div class="mob-lb-rank silver">#2</div>
+                <div class="mob-lb-bar-wrap">
+                  <div class="mob-lb-rtname">RT 03/RW 02</div>
+                  <div class="mob-lb-bar"><div class="mob-lb-fill" style="width:82%;"></div></div>
+                </div>
+                <div class="mob-lb-score">4.100</div>
+              </div>
+              <div class="mob-lb-item">
+                <div class="mob-lb-rank bronze">#3</div>
+                <div class="mob-lb-bar-wrap">
+                  <div class="mob-lb-rtname">RT 12/RW 06</div>
+                  <div class="mob-lb-bar"><div class="mob-lb-fill" style="width:65%;"></div></div>
+                </div>
+                <div class="mob-lb-score">3.250</div>
+              </div>
+              <div class="mob-lb-item">
+                <div class="mob-lb-rank">#4</div>
+                <div class="mob-lb-bar-wrap">
+                  <div class="mob-lb-rtname">RT 05/RW 01</div>
+                  <div class="mob-lb-bar"><div class="mob-lb-fill" style="width:48%;"></div></div>
+                </div>
+                <div class="mob-lb-score">2.400</div>
+              </div>
+              <div class="mob-lb-item">
+                <div class="mob-lb-rank">#5</div>
+                <div class="mob-lb-bar-wrap">
+                  <div class="mob-lb-rtname">RT 09/RW 05</div>
+                  <div class="mob-lb-bar"><div class="mob-lb-fill" style="width:32%;"></div></div>
+                </div>
+                <div class="mob-lb-score">1.600</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phone 3: Setor -->
+      <div>
+        <p style="font-size: 11px; color: var(--color-text-secondary); margin-bottom: 8px; font-weight: 500;">Setor Sampah</p>
+        <div class="phone-frame">
+          <div class="phone-screen" style="background:#fff;">
+            <div style="background:var(--green);padding:14px 16px;display:flex;align-items:center;gap:8px;">
+              <div style="color:rgba(255,255,255,0.7);font-size:14px;cursor:pointer;">←</div>
+              <span style="color:#fff;font-size:13px;font-weight:600;">Setor Sampah</span>
+            </div>
+            <div style="padding:14px 12px;">
+              <div style="background:var(--color-background-secondary);border:1.5px dashed var(--color-border-secondary);border-radius:12px;padding:24px 12px;text-align:center;margin-bottom:14px;">
+                <div style="font-size:28px;margin-bottom:6px;">📷</div>
+                <div style="font-size:11px;font-weight:600;color:var(--color-text-primary);margin-bottom:4px;">Foto Sampah Kamu</div>
+                <div style="font-size:9px;color:var(--color-text-secondary);">Pastikan sampah sudah dipilah</div>
+                <button style="margin-top:10px;background:var(--green);color:#fff;font-size:10px;font-weight:600;padding:6px 16px;border-radius:20px;border:none;cursor:pointer;">Ambil Foto</button>
+              </div>
+              <div class="mob-section-title">Pilih Jenis Sampah</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;">
+                <div style="border:1.5px solid var(--green);border-radius:8px;padding:8px;text-align:center;background:var(--green-light);">
+                  <div style="font-size:14px;">🧴</div>
+                  <div style="font-size:9px;font-weight:600;color:var(--green);">Plastik</div>
+                </div>
+                <div style="border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:8px;text-align:center;">
+                  <div style="font-size:14px;">📰</div>
+                  <div style="font-size:9px;font-weight:600;color:var(--color-text-secondary);">Kertas</div>
+                </div>
+                <div style="border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:8px;text-align:center;">
+                  <div style="font-size:14px;">🥫</div>
+                  <div style="font-size:9px;font-weight:600;color:var(--color-text-secondary);">Kaleng</div>
+                </div>
+                <div style="border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:8px;text-align:center;">
+                  <div style="font-size:14px;">📦</div>
+                  <div style="font-size:9px;font-weight:600;color:var(--color-text-secondary);">Kardus</div>
+                </div>
+              </div>
+              <div style="background:var(--teal-light);border-radius:8px;padding:8px 10px;display:flex;gap:6px;align-items:flex-start;margin-bottom:14px;">
+                <div style="font-size:12px;flex-shrink:0;">ℹ</div>
+                <div style="font-size:9px;color:var(--teal);line-height:1.5;">AI akan mendeteksi otomatis. Estimasi berat: <strong>1.2 kg</strong></div>
+              </div>
+              <button style="width:100%;background:var(--green);color:#fff;font-size:12px;font-weight:700;padding:12px;border-radius:12px;border:none;cursor:pointer;">Kirim & Dapatkan Poin</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLET -->
+  <div class="screen" id="scr-tablet">
+    <div style="max-width:560px;">
+      <p style="font-size: 11px; color: var(--color-text-secondary); margin-bottom: 8px; font-weight: 500;">Dashboard Pengepul — Tablet</p>
+      <div class="tablet-frame">
+        <div class="tablet-screen">
+          <div class="tab-header">
+            <span class="tab-logo">WasteBank ID</span>
+            <div class="tab-nav">
+              <span class="tab-nav-item active">Dashboard</span>
+              <span class="tab-nav-item">Verifikasi</span>
+              <span class="tab-nav-item">Penjadwalan</span>
+              <span class="tab-nav-item">Laporan</span>
+            </div>
+          </div>
+          <div class="tab-stats">
+            <div class="tab-stat-card">
+              <div class="tab-stat-label">Total Stok RT</div>
+              <div class="tab-stat-val">127 <span style="font-size:12px;font-weight:400;">kg</span></div>
+              <div class="tab-stat-sub">dari 8 RT aktif</div>
+            </div>
+            <div class="tab-stat-card">
+              <div class="tab-stat-label">Antrian Verifikasi</div>
+              <div class="tab-stat-val" style="color:var(--amber);">23</div>
+              <div class="tab-stat-sub">foto belum diverifikasi</div>
+            </div>
+            <div class="tab-stat-card">
+              <div class="tab-stat-label">Pickup Hari Ini</div>
+              <div class="tab-stat-val" style="color:var(--teal);">3</div>
+              <div class="tab-stat-sub">RT dijadwalkan</div>
+            </div>
+          </div>
+          <div class="tab-two-col">
+            <div class="tab-col-main">
+              <div class="tab-section">
+                <div class="tab-section-hd">Verifikasi Foto — Antrian</div>
+                <div class="tab-photo-grid">
+                  <div class="tab-photo" style="background:var(--green-light);">
+                    🧴
+                    <div class="tab-photo-badge" style="background:var(--teal-light);color:var(--teal);">Plastik</div>
+                    <div class="tab-photo-verify" style="background:var(--amber-light);color:var(--amber);">?</div>
+                  </div>
+                  <div class="tab-photo" style="background:#F5F3EE;">
+                    📰
+                    <div class="tab-photo-badge" style="background:var(--amber-light);color:var(--amber);">Kertas</div>
+                    <div class="tab-photo-verify" style="background:var(--amber-light);color:var(--amber);">?</div>
+                  </div>
+                  <div class="tab-photo" style="background:#EEF4F8;">
+                    🥫
+                    <div class="tab-photo-badge" style="background:var(--green-light);color:var(--green);">Kaleng</div>
+                    <div class="tab-photo-verify" style="background:var(--green-light);color:var(--green);">✓</div>
+                  </div>
+                  <div class="tab-photo" style="background:var(--coral-light);">
+                    ❓
+                    <div class="tab-photo-badge" style="background:var(--coral-light);color:var(--coral);">Unknown</div>
+                    <div class="tab-photo-verify" style="background:var(--coral-light);color:var(--coral);">✕</div>
+                  </div>
+                </div>
+                <div style="display:flex;gap:6px;margin-top:10px;">
+                  <button style="flex:1;background:var(--green);color:#fff;font-size:10px;font-weight:600;padding:7px;border-radius:7px;border:none;cursor:pointer;">✓ Setujui Semua</button>
+                  <button style="flex:1;background:var(--coral-light);color:var(--coral);font-size:10px;font-weight:600;padding:7px;border-radius:7px;border:0.5px solid var(--coral);cursor:pointer;">✕ Tolak Dipilih</button>
+                </div>
+              </div>
+            </div>
+            <div class="tab-col-side">
+              <div class="tab-section">
+                <div class="tab-section-hd">Stok per RT</div>
+                <div class="tab-rt-item">
+                  <div class="tab-rt-name">RT 07/RW 04</div>
+                  <div class="tab-rt-kg">42 kg</div>
+                  <button class="tab-rt-pickup">Pickup</button>
+                </div>
+                <div class="tab-rt-item">
+                  <div class="tab-rt-name">RT 03/RW 02</div>
+                  <div class="tab-rt-kg">31 kg</div>
+                  <button class="tab-rt-pickup">Pickup</button>
+                </div>
+                <div class="tab-rt-item">
+                  <div class="tab-rt-name">RT 12/RW 06</div>
+                  <div class="tab-rt-kg">28 kg</div>
+                  <button class="tab-rt-pickup">Pickup</button>
+                </div>
+                <div class="tab-rt-item" style="border-bottom:none;">
+                  <div class="tab-rt-name">RT 05/RW 01</div>
+                  <div class="tab-rt-kg">14 kg</div>
+                  <button class="tab-rt-pickup" style="opacity:0.4;cursor:default;">Tunggu</button>
+                </div>
+              </div>
+              <div class="tab-section">
+                <div class="tab-section-hd">Tren Mingguan</div>
+                <div class="chart-bars">
+                  <div class="chart-bar-wrap">
+                    <div class="chart-val">18</div>
+                    <div class="chart-bar" style="height:38px;"></div>
+                    <div class="chart-label">Sen</div>
+                  </div>
+                  <div class="chart-bar-wrap">
+                    <div class="chart-val">31</div>
+                    <div class="chart-bar" style="height:62px;"></div>
+                    <div class="chart-label">Sel</div>
+                  </div>
+                  <div class="chart-bar-wrap">
+                    <div class="chart-val">25</div>
+                    <div class="chart-bar" style="height:50px;"></div>
+                    <div class="chart-label">Rab</div>
+                  </div>
+                  <div class="chart-bar highlight" style="display:none;"></div>
+                  <div class="chart-bar-wrap">
+                    <div class="chart-val">40</div>
+                    <div class="chart-bar highlight" style="height:80px;"></div>
+                    <div class="chart-label">Kam</div>
+                  </div>
+                  <div class="chart-bar-wrap">
+                    <div class="chart-val">22</div>
+                    <div class="chart-bar" style="height:44px;"></div>
+                    <div class="chart-label">Jum</div>
+                  </div>
+                </div>
+                <div style="font-size:9px;color:var(--color-text-secondary);text-align:center;">Volume sampah masuk (kg)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESKTOP -->
+  <div class="screen" id="scr-desktop">
+    <p style="font-size: 11px; color: var(--color-text-secondary); margin-bottom: 8px; font-weight: 500;">Dashboard Admin Kelurahan — Desktop</p>
+    <div class="desktop-frame">
+      <div class="desk-layout">
+        <div class="desk-sidebar">
+          <div class="desk-sb-logo">
+            <div class="desk-sb-logo-text">WasteBank ID</div>
+            <div class="desk-sb-logo-sub">Admin Kelurahan</div>
+          </div>
+          <div class="desk-sb-nav">
+            <div class="desk-sb-section">Utama</div>
+            <div class="desk-nav-item active">
+              <div class="desk-nav-icon">◼</div> Dashboard
+            </div>
+            <div class="desk-nav-item">
+              <div class="desk-nav-icon">◻</div> Submisi Sampah
+            </div>
+            <div class="desk-nav-item">
+              <div class="desk-nav-icon">◻</div> Leaderboard
+            </div>
+            <div class="desk-sb-section">Kelola</div>
+            <div class="desk-nav-item">
+              <div class="desk-nav-icon">◻</div> Warga
+            </div>
+            <div class="desk-nav-item">
+              <div class="desk-nav-icon">◻</div> Pengepul
+            </div>
+            <div class="desk-nav-item">
+              <div class="desk-nav-icon">◻</div> Penjadwalan
+            </div>
+            <div class="desk-sb-section">Laporan</div>
+            <div class="desk-nav-item">
+              <div class="desk-nav-icon">◻</div> Analitik
+            </div>
+            <div class="desk-nav-item">
+              <div class="desk-nav-icon">◻</div> Ekspor Data
+            </div>
+          </div>
+        </div>
+        <div class="desk-main">
+          <div class="desk-topbar">
+            <div>
+              <div class="desk-topbar-title">Dashboard Kelurahan Cicendo</div>
+              <div class="desk-topbar-sub">Periode: April 2026 • 12 RT Aktif</div>
+            </div>
+            <div class="desk-topbar-actions">
+              <button class="desk-action-btn desk-action-secondary">Ekspor Laporan</button>
+              <button class="desk-action-btn desk-action-primary">+ Tambah RT</button>
+            </div>
+          </div>
+          <div class="desk-content">
+            <div class="desk-kpi-row">
+              <div class="desk-kpi">
+                <div class="desk-kpi-label">Total Warga Aktif</div>
+                <div class="desk-kpi-val">1.247</div>
+                <div class="desk-kpi-change up">↑ 12% dari bulan lalu</div>
+              </div>
+              <div class="desk-kpi">
+                <div class="desk-kpi-label">Sampah Terkumpul</div>
+                <div class="desk-kpi-val">2.4 ton</div>
+                <div class="desk-kpi-change up">↑ 8% dari bulan lalu</div>
+              </div>
+              <div class="desk-kpi">
+                <div class="desk-kpi-label">Total Poin Diberikan</div>
+                <div class="desk-kpi-val">48.320</div>
+                <div class="desk-kpi-change up">↑ 15% bulan ini</div>
+              </div>
+              <div class="desk-kpi">
+                <div class="desk-kpi-label">Reward Dicairkan</div>
+                <div class="desk-kpi-val">Rp 4,2jt</div>
+                <div class="desk-kpi-change down">↓ 3% dari target</div>
+              </div>
+            </div>
+            <div class="desk-bottom-row">
+              <div class="desk-card">
+                <div class="desk-card-hd">
+                  Submisi Terbaru
+                  <span class="desk-card-action">Lihat semua →</span>
+                </div>
+                <table class="desk-table">
+                  <thead>
+                    <tr>
+                      <th>Warga</th>
+                      <th>RT</th>
+                      <th>Jenis</th>
+                      <th>Est. Berat</th>
+                      <th>Status</th>
+                      <th>Poin</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="font-weight:500;">Siti Rahayu</td>
+                      <td style="color:var(--color-text-secondary);">RT 03</td>
+                      <td>Plastik</td>
+                      <td>1.2 kg</td>
+                      <td><span class="status-badge status-approved">Approved</span></td>
+                      <td style="font-weight:600;color:var(--green);">+60</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:500;">Budi Santoso</td>
+                      <td style="color:var(--color-text-secondary);">RT 07</td>
+                      <td>Kertas</td>
+                      <td>0.8 kg</td>
+                      <td><span class="status-badge status-pending">Pending</span></td>
+                      <td style="color:var(--color-text-secondary);">—</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:500;">Dewi Lestari</td>
+                      <td style="color:var(--color-text-secondary);">RT 12</td>
+                      <td>Kaleng</td>
+                      <td>0.5 kg</td>
+                      <td><span class="status-badge status-approved">Approved</span></td>
+                      <td style="font-weight:600;color:var(--green);">+40</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:500;">Ahmad Fauzi</td>
+                      <td style="color:var(--color-text-secondary);">RT 03</td>
+                      <td>Plastik</td>
+                      <td>0.3 kg</td>
+                      <td><span class="status-badge status-rejected">Rejected</span></td>
+                      <td style="color:var(--color-text-secondary);">—</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:500;">Rina Marlina</td>
+                      <td style="color:var(--color-text-secondary);">RT 05</td>
+                      <td>Kardus</td>
+                      <td>2.1 kg</td>
+                      <td><span class="status-badge status-pending">Pending</span></td>
+                      <td style="color:var(--color-text-secondary);">—</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="desk-card">
+                <div class="desk-card-hd">
+                  Leaderboard RT
+                  <span class="desk-card-action">Lihat penuh →</span>
+                </div>
+                <div class="desk-mini-lb">
+                  <div class="desk-lb-item">
+                    <div class="desk-lb-rank rank-1">#1</div>
+                    <div class="desk-lb-rt">
+                      <div class="desk-lb-rtname">RT 07/RW 04</div>
+                      <div class="desk-lb-kelurahan">Cicendo</div>
+                    </div>
+                    <div class="desk-lb-score-bar">
+                      <div class="desk-lb-bar-bg"><div class="desk-lb-bar-fill" style="width:95%;"></div></div>
+                      <div class="desk-lb-pts" style="text-align:right;">4.750 pts</div>
+                    </div>
+                  </div>
+                  <div class="desk-lb-item">
+                    <div class="desk-lb-rank rank-2">#2</div>
+                    <div class="desk-lb-rt">
+                      <div class="desk-lb-rtname">RT 03/RW 02</div>
+                      <div class="desk-lb-kelurahan">Cicendo</div>
+                    </div>
+                    <div class="desk-lb-score-bar">
+                      <div class="desk-lb-bar-bg"><div class="desk-lb-bar-fill" style="width:80%;"></div></div>
+                      <div class="desk-lb-pts" style="text-align:right;">4.100 pts</div>
+                    </div>
+                  </div>
+                  <div class="desk-lb-item">
+                    <div class="desk-lb-rank rank-3">#3</div>
+                    <div class="desk-lb-rt">
+                      <div class="desk-lb-rtname">RT 12/RW 06</div>
+                      <div class="desk-lb-kelurahan">Cicendo</div>
+                    </div>
+                    <div class="desk-lb-score-bar">
+                      <div class="desk-lb-bar-bg"><div class="desk-lb-bar-fill" style="width:63%;"></div></div>
+                      <div class="desk-lb-pts" style="text-align:right;">3.250 pts</div>
+                    </div>
+                  </div>
+                  <div class="desk-lb-item">
+                    <div class="desk-lb-rank rank-n">#4</div>
+                    <div class="desk-lb-rt">
+                      <div class="desk-lb-rtname">RT 05/RW 01</div>
+                      <div class="desk-lb-kelurahan">Cicendo</div>
+                    </div>
+                    <div class="desk-lb-score-bar">
+                      <div class="desk-lb-bar-bg"><div class="desk-lb-bar-fill" style="width:47%;"></div></div>
+                      <div class="desk-lb-pts" style="text-align:right;">2.400 pts</div>
+                    </div>
+                  </div>
+                  <div class="desk-lb-item">
+                    <div class="desk-lb-rank rank-n">#5</div>
+                    <div class="desk-lb-rt">
+                      <div class="desk-lb-rtname">RT 09/RW 05</div>
+                      <div class="desk-lb-kelurahan">Cicendo</div>
+                    </div>
+                    <div class="desk-lb-score-bar">
+                      <div class="desk-lb-bar-bg"><div class="desk-lb-bar-fill" style="width:31%;"></div></div>
+                      <div class="desk-lb-pts" style="text-align:right;">1.600 pts</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('scr-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>

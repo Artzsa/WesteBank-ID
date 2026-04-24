@@ -1,0 +1,113 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  PENGEPUL
+  WARGA
+}
+
+model User {
+  id              String            @id @default(uuid())
+  phoneNumber     String            @unique
+  name            String
+  rt              String?
+  village         String?
+  district        String?
+  regency         String?
+  province        String?
+  role            Role              @default(WARGA)
+  totalPoints     Int               @default(0)
+  latitude        Float?
+  longitude       Float?
+  createdAt       DateTime          @default(now())
+  wasteSubmissions WasteSubmission[]
+  redemptions      Redemption[]
+}
+
+model WasteSubmission {
+  id            String   @id @default(uuid())
+  userId        String
+  imageUrl      String
+  predictedType String
+  actualType    String?
+  estimatedWeightKg Float
+  actualWeightKg    Float?
+  pointsAwarded     Int      @default(0)
+  grossValue        Int      @default(0)
+  operationalCut    Int      @default(0)
+  status        String   @default("PENDING") // PENDING, VERIFIED, APPROVED, REJECTED
+  isSorted      Boolean  @default(false)
+  verifiedById  String?
+  createdAt     DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model RTStock {
+  id             String @id @default(uuid())
+  rt             String @unique
+  totalPlasticKg Float  @default(0)
+  totalPaperKg   Float  @default(0)
+  totalMetalKg   Float  @default(0)
+  totalGlassKg   Float  @default(0)
+  totalOilKg     Float  @default(0)
+  updatedAt      DateTime @updatedAt
+}
+
+model Pickup {
+  id        String   @id @default(uuid())
+  rt        String
+  date      String
+  time      String
+  status    String   @default("PENDING") // PENDING, CONFIRMED, COMPLETED, CANCELLED
+  volume    String?
+  createdAt DateTime @default(now())
+}
+
+model WastePrice {
+  id        String   @id @default(uuid())
+  type      String   @unique // PLASTIK, KERTAS, LOGAM, etc.
+  price     Int      @default(0) // Price per KG
+  updatedAt DateTime @updatedAt
+}
+
+model BroadcastLog {
+  id          String   @id @default(uuid())
+  title       String
+  message     String
+  targetCount Int
+  status      String   @default("SUCCESS")
+  createdAt   DateTime @default(now())
+}
+
+model Reward {
+  id          String   @id @default(uuid())
+  name        String
+  pointsRequired Int
+  stock       Int      @default(0)
+  imageUrl    String?
+  category    String   @default("SEMBAKO") // SEMBAKO, LISTRIK, PULSA, etc.
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  redemptions Redemption[]
+}
+
+model Redemption {
+  id        String   @id @default(uuid())
+  userId    String
+  rewardId  String
+  pointsUsed Int
+  status    String   @default("PENDING") // PENDING, COMPLETED, CANCELLED
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  reward Reward @relation(fields: [rewardId], references: [id])
+}

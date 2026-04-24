@@ -1,0 +1,15 @@
+{
+  "name": "wastebank-id",
+  "version": "1.0.0",
+  "description": "WasteBank ID - Digital Waste Management Platform",
+  "scripts": {
+    "backend": "cd backend && npm run dev",
+    "bot": "cd bot && npm run dev",
+    "dashboard": "cd dashboard && npm run dev",
+    "dev": "concurrently \"npm run backend\" \"npm run bot\" \"npm run dashboard\"",
+    "start": "npm run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
