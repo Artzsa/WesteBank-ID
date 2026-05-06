@@ -3,3 +3,7 @@ node_modules
 .env
 
 /generated/prisma
+.vercel/
+public/uploads/*
+backups/*
+.DS_Store
