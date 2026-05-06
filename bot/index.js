@@ -17,57 +17,58 @@ const BOT_SERVER_PORT = 5001;
 const BACKEND_URL = process.env.BACKEND_URL || 'http://127.0.0.1:5000/api';
 
 // AGGRESSIVE LOCK CLEANER
-const sessionPath = path.join(__dirname, '.wwebjs_auth', 'session');
+const authPath = path.join(__dirname, '.wwebjs_auth');
 const cleanupLock = (dir) => {
   if (!fs.existsSync(dir)) return;
-  const files = fs.readdirSync(dir);
-  for (const file of files) {
-    const fullPath = path.join(dir, file);
-    if (file === 'SingletonLock') {
-      try { fs.unlinkSync(fullPath); console.log('🔓 Unlocked session.'); } catch(e) {}
-    } else if (fs.lstatSync(fullPath).isDirectory()) {
-      cleanupLock(fullPath);
+  try {
+    const files = fs.readdirSync(dir);
+    for (const file of files) {
+      const fullPath = path.join(dir, file);
+      if (file === 'SingletonLock' || file === 'lockfile' || file === 'DevToolsActivePort') {
+        try { 
+          fs.unlinkSync(fullPath); 
+          console.log(`🔓 Removed lock: ${file}`); 
+        } catch(e) {}
+      } else if (fs.lstatSync(fullPath).isDirectory()) {
+        cleanupLock(fullPath);
+      }
     }
+  } catch (e) {
+    console.warn('⚠️ Cleanup warning:', e.message);
   }
 };
-cleanupLock(sessionPath);
 
-// Jika sesi lama terkunci, kita pindah ke sesi baru biar Bot tetap bisa nyala
-const clientId = 'wastebank-' + Date.now(); 
+// Jalankan pembersihan menyeluruh sebelum start
+console.log('🧹 Membersihkan sisa sesi sebelumnya...');
+cleanupLock(authPath);
 
 const client = new Client({
   authStrategy: new LocalAuth({
-    clientId: 'wastebank-prod', // Kita coba pakai yang prod dulu
-    dataPath: path.join(__dirname, '.wwebjs_auth')
+    clientId: 'wastebank-prod',
+    dataPath: authPath
   }),
   puppeteer: {
-    headless: true,
+    headless: "new",
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
       '--disable-dev-shm-usage',
-      '--disable-gpu'
+      '--disable-gpu',
+      '--disable-extensions'
     ],
   }
 });
 
-console.log('⏳ Menyiapkan sistem...');
-setTimeout(() => {
-  console.log('🚀 Mencoba menyalakan Bot...');
-  client.initialize().catch(async (err) => {
-    if (err.message.includes('already running')) {
-      console.warn('⚠️ Sesi terkunci! Mencoba jalur alternatif...');
-      // Jika terkunci, kita hapus paksa file lock-nya lagi dari dalam sini
-      const lockFile = path.join(__dirname, '.wwebjs_auth', 'session-wastebank-prod', 'Default', 'SingletonLock');
-      try { fs.unlinkSync(lockFile); console.log('🔓 Lock dibongkar paksa!'); } catch(e) {}
-      
-      console.log('🔄 Menjalankan ulang inisialisasi...');
-      client.initialize().catch(e => console.error('❌ Gagal total:', e.message));
-    } else {
-      console.error('❌ Gagal:', err.message);
-    }
-  });
-}, 5000);
+console.log('🚀 Inisialisasi Bot...');
+client.initialize().catch(async (err) => {
+  console.error('❌ Gagal Inisialisasi:', err.message);
+  if (err.message.includes('already running')) {
+    console.log('🔄 Mencoba pembersihan darurat...');
+    cleanupLock(authPath);
+    setTimeout(() => client.initialize(), 2000);
+  }
+});
+
 
 // Memori sementara untuk warga yang sedang daftar
 const pendingRegistrations = {};
