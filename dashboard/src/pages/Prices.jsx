@@ -58,7 +58,9 @@ const Prices = () => {
   const fetchPrices = async () => {
     try {
       const res = await axios.get(`${API_URL}/prices`);
-      setPrices(res.data);
+      // Urutkan berdasarkan tipe agar tidak pindah-pindah saat update
+      const sortedPrices = res.data.sort((a, b) => a.type.localeCompare(b.type));
+      setPrices(sortedPrices);
     } catch (err) {
       toast.error('Gagal mengambil data harga');
     } finally {
