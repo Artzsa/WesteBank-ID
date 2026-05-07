@@ -316,8 +316,9 @@ async function handleSetor(msg, phone) {
     notifyPengepul(user.name).catch(() => { });
 
   } catch (err) {
-    log.error('handleSetor:', err.message);
-    return safeReply(msg, '⚠️ Gagal memproses setoran. Pastikan foto valid dan coba lagi.');
+    const errorMsg = err.response?.data?.message || err.message;
+    log.error('handleSetor error:', errorMsg);
+    return safeReply(msg, `⚠️ Gagal memproses setoran: ${errorMsg}`);
   }
 }
 
