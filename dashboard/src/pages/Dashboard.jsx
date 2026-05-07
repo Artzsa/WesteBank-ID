@@ -73,6 +73,47 @@ const Dashboard = () => {
     if (user) fetchData();
   }, [user]);
 
+  const generatePDF = () => {
+    if (!stocks || stocks.length === 0) {
+      toast.error('Data stok kosong, tidak ada yang bisa dicetak.');
+      return;
+    }
+
+    const doc = new jsPDF();
+    const date = new Date().toLocaleDateString('id-ID');
+    
+    doc.setFontSize(20);
+    doc.text('WasteBank ID - Laporan Stok Sampah', 14, 22);
+    doc.setFontSize(11);
+    doc.text(`Tanggal: ${date}`, 14, 30);
+    doc.text(`Dicetak oleh: ${user?.name || 'Admin'}`, 14, 35);
+    
+    const tableColumn = ["Wilayah (RT)", "Plastik (Kg)", "Kertas (Kg)", "Logam (Kg)", "Kaca (Kg)", "Minyak (Lt)", "Total"];
+    const tableRows = stocks.map(stock => {
+      const total = (stock.totalPlasticKg || 0) + (stock.totalPaperKg || 0) + (stock.totalMetalKg || 0) + (stock.totalGlassKg || 0) + (stock.totalOilKg || 0);
+      return [
+        stock.rt,
+        (stock.totalPlasticKg || 0).toFixed(1),
+        (stock.totalPaperKg || 0).toFixed(1),
+        (stock.totalMetalKg || 0).toFixed(1),
+        (stock.totalGlassKg || 0).toFixed(1),
+        (stock.totalOilKg || 0).toFixed(1),
+        total.toFixed(1)
+      ];
+    });
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 45,
+      theme: 'grid',
+      headStyles: { fillColor: [46, 204, 113] }
+    });
+
+    doc.save(`Laporan_Stok_WasteBank_${date}.pdf`);
+    toast.success('Laporan PDF berhasil diunduh!');
+  };
+
   const kpis = isAdmin ? [
     { label: 'Warga Aktif', val: stats.totalUsers.toLocaleString(), change: '↑ 12%', color: 'text-waste-green', icon: Users },
     { label: 'Sampah Masuk', val: `${stats.totalWeightKg.toLocaleString()} Kg`, change: '↑ 8%', color: 'text-waste-green', icon: Scale },
