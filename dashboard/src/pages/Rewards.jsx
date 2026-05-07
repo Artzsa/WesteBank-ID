@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import API_URL from '../utils/api';
 import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
 import { 
   Gift, 
   Plus, 
