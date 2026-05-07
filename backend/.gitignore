@@ -7,3 +7,4 @@ node_modules
 public/uploads/*
 backups/*
 .DS_Store
+.vercel
