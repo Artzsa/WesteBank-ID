@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import API_URL from '../utils/api';
 import { toast } from 'react-toastify';
-import { Package, Trash2, FileText, ArrowUpRight, TrendingUp, Users, Scale, Wallet, CheckCircle } from 'lucide-react';
+import { Package, Trash2, FileText, ArrowUpRight, TrendingUp, Users, Scale, Wallet, CheckCircle, Clock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { 
   Chart as ChartJS, 
@@ -53,12 +53,16 @@ const Dashboard = () => {
         } else {
           // Fetch Warga Data safely
           try {
+            console.log("Current Logged In User:", user);
             const [subRes, impactRes] = await Promise.all([
               axios.get(`${API_URL}/waste/pending`).catch(() => ({ data: [] })),
               axios.get(`${API_URL}/users/${user?.phoneNumber || 'none'}/impact`).catch(() => ({ data: { totalPoints: 0, breakdown: {} } }))
             ]);
             
-            const mySubmissions = Array.isArray(subRes.data) ? subRes.data.filter(s => s.userId === user?.id) : [];
+            console.log("All Submissions from Server:", subRes.data);
+            const mySubmissions = Array.isArray(subRes.data) ? subRes.data.filter(s => String(s.userId) === String(user?.id)) : [];
+            console.log("Filtered My Submissions:", mySubmissions);
+            
             setUserSubmissions(mySubmissions);
             
             const breakdown = impactRes.data?.breakdown || {};

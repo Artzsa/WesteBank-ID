@@ -166,7 +166,7 @@ const requestOTP = async (req, res) => {
     let otp = Math.floor(1000 + Math.random() * 9000).toString();
     
     // Khusus nomor testing, gunakan OTP default 0987
-    if (phoneNumber === '083822144338' || phoneNumber === '083822144339') {
+    if (phoneNumber === '083822144338' || phoneNumber === '083822144339' || phoneNumber === '098709870987') {
       otp = '0987';
     }
     
