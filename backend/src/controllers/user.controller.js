@@ -114,16 +114,34 @@ const deleteUser = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  const phoneNumber = normalizePhone(req.body.phoneNumber);
-  console.log('Login attempt for (normalized):', phoneNumber);
+  const { phoneNumber, otpCode } = req.body;
+  const normalizedPhone = normalizePhone(phoneNumber);
+  
   try {
     const user = await prisma.user.findUnique({
-      where: { phoneNumber },
+      where: { phoneNumber: normalizedPhone },
     });
+
     if (!user) {
-      console.log('User not found in database:', phoneNumber);
       return res.status(404).json({ message: 'Nomor telepon tidak terdaftar' });
     }
+
+    // Cek OTP
+    if (!user.otpCode || user.otpCode !== otpCode) {
+      return res.status(401).json({ message: 'Kode OTP salah atau belum diminta' });
+    }
+
+    // Cek Kadaluarsa (10 menit)
+    if (new Date() > user.otpExpires) {
+      return res.status(401).json({ message: 'Kode OTP sudah kadaluarsa, silakan minta lagi' });
+    }
+
+    // Reset OTP setelah berhasil login agar tidak bisa dipakai lagi
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { otpCode: null, otpExpires: null }
+    });
+
     console.log('Login successful for:', user.name);
     res.json(user);
   } catch (error) {
@@ -131,6 +149,52 @@ const login = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+const requestOTP = async (req, res) => {
+  const phoneNumber = normalizePhone(req.body.phoneNumber);
+  
+  try {
+    const user = await prisma.user.findUnique({
+      where: { phoneNumber },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'Nomor tidak terdaftar di sistem WasteBank' });
+    }
+
+    // Generate 4 digit code
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 menit
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { otpCode: otp, otpExpires: expires }
+    });
+
+    // Kirim via Bot WhatsApp
+    const botUrl = process.env.BOT_URL || 'http://localhost:5001';
+    try {
+      const axios = require('axios');
+      await axios.post(`${botUrl}/send-message`, {
+        phoneNumber: user.phoneNumber,
+        message: `🔐 *KODE OTP WASTEBANK ID*\n\nKode rahasia Anda adalah: *${otp}*\n\nJangan berikan kode ini kepada siapapun. Kode berlaku selama 10 menit. Selamat menabung sampah! ♻️`
+      });
+      console.log(`OTP sent to ${user.phoneNumber}: ${otp}`);
+      res.json({ success: true, message: 'OTP telah dikirim ke WhatsApp Anda' });
+    } catch (botErr) {
+      console.error('Bot Error:', botErr.message);
+      // Tetap kirim sukses ke client (untuk testing lokal jika bot mati)
+      res.json({ 
+        success: true, 
+        message: 'OTP digenerate (Bot sedang offline/tidak terjangkau)',
+        debugOtp: process.env.NODE_ENV !== 'production' ? otp : undefined 
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 
 const getUserStats = async (req, res) => {
   const { id } = req.params;
@@ -215,7 +279,9 @@ module.exports = {
   registerUser,
   updatePoints,
   login,
+  requestOTP,
   getAllUsers,
+
   updateUser,
   deleteUser,
   getUserStats,

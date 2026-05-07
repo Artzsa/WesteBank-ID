@@ -29,6 +29,8 @@ model User {
   totalPoints     Int               @default(0)
   latitude        Float?
   longitude       Float?
+  otpCode         String?
+  otpExpires      DateTime?
   createdAt       DateTime          @default(now())
   wasteSubmissions WasteSubmission[]
   redemptions      Redemption[]
