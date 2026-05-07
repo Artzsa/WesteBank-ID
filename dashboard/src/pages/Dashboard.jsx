@@ -68,7 +68,8 @@ const Dashboard = () => {
             const breakdown = impactRes.data?.breakdown || {};
             setPersonalStats({
               totalPoints: impactRes.data?.totalPoints || 0,
-              totalWaste: Object.values(breakdown).reduce((a, b) => a + (typeof b === 'number' ? b : 0), 0)
+              totalWaste: impactRes.data?.totalWeight || 0,
+              co2Saved: impactRes.data?.co2Saved || 0
             });
           } catch (innerErr) {
             console.error("Non-admin fetch error:", innerErr);
@@ -138,7 +139,7 @@ const Dashboard = () => {
     { label: 'Poin Anda', val: (personalStats?.totalPoints || 0).toLocaleString(), change: 'Saldo Aktif', color: 'text-waste-green', icon: Wallet },
     { label: 'Tabungan Sampah', val: `${(personalStats?.totalWaste || 0).toFixed(1)} Kg`, change: 'Total Kontribusi', color: 'text-waste-green', icon: Scale },
     { label: 'Status Setoran', val: (userSubmissions || []).filter(s => s?.status === 'PENDING').length.toString(), change: 'Menunggu Verifikasi', color: 'text-waste-amber', icon: Clock },
-    { label: 'Dampak Lingkungan', val: ((personalStats?.totalWaste || 0) * 2.5).toFixed(1), change: 'Kg CO2 Diselamatkan', color: 'text-waste-green', icon: TrendingUp },
+    { label: 'Dampak Lingkungan', val: personalStats?.co2Saved || 0, change: 'Kg CO2 Diselamatkan', color: 'text-waste-green', icon: TrendingUp },
   ]);
 
   if (loading) return <div className="skeleton h-screen w-full rounded-3xl"></div>;
