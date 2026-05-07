@@ -14,7 +14,7 @@ const Sidebar = () => {
       links: [
         { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
         ...(user?.role !== 'WARGA' ? [{ to: '/verification', icon: CheckSquare, label: 'Verifikasi Sampah' }] : []),
-        { to: '/rewards', icon: Gift, label: 'Tukar Poin' },
+        ...(user?.role === 'WARGA' || isAdmin ? [{ to: '/rewards', icon: Gift, label: 'Tukar Poin' }] : []),
         ...(isSuperAdmin ? [{ to: '/leaderboard', icon: BarChart3, label: 'Leaderboard' }] : []),
       ]
     },
@@ -49,7 +49,7 @@ const Sidebar = () => {
         <div>
           <div className="text-lg font-bold text-white tracking-wider">WasteBank ID</div>
           <div className="text-[10px] text-white/50 uppercase font-medium">
-            {isSuperAdmin ? 'Admin Kelurahan' : isOperationalAdmin ? 'Admin Bank Sampah' : 'Warga'}
+            {isSuperAdmin ? 'Admin Kelurahan' : isOperationalAdmin ? 'Admin Bank Sampah' : user?.role === 'PENGEPUL' ? 'Pengepul RT' : 'Warga'}
           </div>
         </div>
         <label htmlFor="my-drawer" className="lg:hidden btn btn-ghost btn-circle btn-sm text-white/50">
