@@ -5,6 +5,8 @@ const dotenv = require('dotenv');
 // Paksa cari .env di folder backend
 dotenv.config({ path: path.join(__dirname, '../../.env') });
 
+console.log('🔍 [DEBUG] Cloudinary Name used:', process.env.CLOUDINARY_CLOUD_NAME);
+
 console.log('☁️  [CLOUDINARY] Config Check:', {
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME ? 'OK' : 'MISSING',
   api_key: process.env.CLOUDINARY_API_KEY ? 'OK' : 'MISSING',
