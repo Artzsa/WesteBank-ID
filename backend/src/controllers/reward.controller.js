@@ -102,9 +102,26 @@ const redeemReward = async (req, res) => {
   }
 };
 
+const getRedemptions = async (req, res) => {
+  try {
+    const redemptions = await prisma.redemption.findMany({
+      include: {
+        user: { select: { name: true, phoneNumber: true } },
+        reward: { select: { name: true } }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    res.json(redemptions);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 const updateRedemptionStatus = async (req, res) => {
   const { id } = req.params;
   const { status } = req.body; // 'COMPLETED' or 'CANCELLED'
+
+  console.log(`[REWARD] Update Redemption: id=${id}, status=${status}`);
 
   try {
     const redemption = await prisma.redemption.findUnique({
