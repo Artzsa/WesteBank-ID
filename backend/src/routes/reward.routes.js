@@ -9,5 +9,6 @@ router.delete('/:id', rewardController.deleteReward);
 
 router.post('/redeem', rewardController.redeemReward);
 router.get('/redemptions', rewardController.getRedemptions);
+router.patch('/redemptions/:id', rewardController.updateRedemptionStatus);
 
 module.exports = router;

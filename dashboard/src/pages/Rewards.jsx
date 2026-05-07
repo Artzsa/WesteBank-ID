@@ -96,7 +96,7 @@ const Rewards = () => {
     }
   };
 
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
 
   const handleRedeem = async (reward) => {
@@ -110,14 +110,18 @@ const Rewards = () => {
 
     if (window.confirm(`Yakin ingin menukar ${reward.pointsRequired} poin dengan ${reward.name}?`)) {
       try {
-        await axios.post(`${API_URL}/rewards/redeem`, {
+        const res = await axios.post(`${API_URL}/rewards/redeem`, {
           userId: user.id,
           rewardId: reward.id
         });
+        
+        // Update local user points immediately
+        if (res.data.updatedUser) {
+          updateUser(res.data.updatedUser);
+        }
+
         toast.success('Berhasil tukar poin! Silakan ambil hadiah di Bank Sampah.');
         fetchData();
-        // Update local user points if needed or refresh page
-        window.location.reload(); 
       } catch (err) {
         toast.error(err.response?.data?.message || 'Gagal tukar poin');
       }
@@ -132,6 +136,18 @@ const Rewards = () => {
         fetchData();
       } catch (err) {
         toast.error('Gagal menghapus reward');
+      }
+    }
+  };
+
+  const handleUpdateRedemption = async (id, status) => {
+    if (window.confirm(`Ubah status penukaran menjadi ${status}?`)) {
+      try {
+        await axios.patch(`${API_URL}/rewards/redemptions/${id}`, { status });
+        toast.success(`Status berhasil diperbarui ke ${status}`);
+        fetchData();
+      } catch (err) {
+        toast.error('Gagal memperbarui status');
       }
     }
   };
@@ -157,22 +173,20 @@ const Rewards = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-4">
-          {isAdmin && (
-            <div className="flex bg-base-100 p-1 rounded-2xl">
-              <button 
-                onClick={() => setActiveTab('catalog')}
-                className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${activeTab === 'catalog' ? 'bg-white text-waste-green shadow-sm' : 'text-base-content/40 hover:text-base-content'}`}
-              >
-                Katalog
-              </button>
-              <button 
-                onClick={() => setActiveTab('redemptions')}
-                className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${activeTab === 'redemptions' ? 'bg-white text-waste-green shadow-sm' : 'text-base-content/40 hover:text-base-content'}`}
-              >
-                Riwayat Tukar
-              </button>
-            </div>
-          )}
+          <div className="flex bg-base-100 p-1 rounded-2xl">
+            <button 
+              onClick={() => setActiveTab('catalog')}
+              className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${activeTab === 'catalog' ? 'bg-white text-waste-green shadow-sm' : 'text-base-content/40 hover:text-base-content'}`}
+            >
+              Katalog
+            </button>
+            <button 
+              onClick={() => setActiveTab('redemptions')}
+              className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${activeTab === 'redemptions' ? 'bg-white text-waste-green shadow-sm' : 'text-base-content/40 hover:text-base-content'}`}
+            >
+              Riwayat Tukar
+            </button>
+          </div>
 
           {isAdmin && (
             <button 
@@ -282,7 +296,8 @@ const Rewards = () => {
                     <th className="bg-transparent">Warga</th>
                     <th className="bg-transparent">Barang</th>
                     <th className="bg-transparent">Poin Digunakan</th>
-                    <th className="bg-transparent pr-8 text-right">Status</th>
+                    <th className="bg-transparent">Status</th>
+                    <th className="bg-transparent pr-8 text-right">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -310,12 +325,34 @@ const Rewards = () => {
                       <td>
                         <span className="text-sm font-black text-waste-amber">-{item.pointsUsed.toLocaleString()}</span>
                       </td>
-                      <td className="pr-8 text-right">
+                      <td>
                         <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                          item.status === 'COMPLETED' ? 'bg-green-50 text-green-600' : 'bg-amber-50 text-amber-600'
+                          item.status === 'COMPLETED' ? 'bg-green-50 text-green-600' : 
+                          item.status === 'CANCELLED' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'
                         }`}>
                           {item.status}
                         </span>
+                      </td>
+                      <td className="pr-8 text-right">
+                        {isAdmin && item.status === 'PENDING' && (
+                          <div className="flex items-center justify-end gap-2">
+                            <button 
+                              onClick={() => handleUpdateRedemption(item.id, 'COMPLETED')}
+                              className="btn btn-xs bg-waste-green hover:bg-waste-green-mid text-white border-none rounded-lg font-black text-[9px]"
+                            >
+                              Selesai
+                            </button>
+                            <button 
+                              onClick={() => handleUpdateRedemption(item.id, 'CANCELLED')}
+                              className="btn btn-xs bg-rose-50 hover:bg-rose-100 text-rose-600 border-none rounded-lg font-black text-[9px]"
+                            >
+                              Batal
+                            </button>
+                          </div>
+                        )}
+                        {item.status !== 'PENDING' && (
+                          <span className="text-[10px] font-bold text-base-content/20 italic">Selesai diolah</span>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -323,6 +360,7 @@ const Rewards = () => {
               </table>
             </div>
           ) : (
+
             <div className="p-20 text-center space-y-4">
                <div className="w-20 h-20 bg-base-100 rounded-full flex items-center justify-center mx-auto text-base-content/20">
                  <History size={40} />

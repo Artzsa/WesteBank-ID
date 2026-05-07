@@ -102,16 +102,44 @@ const redeemReward = async (req, res) => {
   }
 };
 
-const getRedemptions = async (req, res) => {
+const updateRedemptionStatus = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body; // 'COMPLETED' or 'CANCELLED'
+
   try {
-    const redemptions = await prisma.redemption.findMany({
-      include: {
-        user: { select: { name: true, phoneNumber: true } },
-        reward: { select: { name: true } }
-      },
-      orderBy: { createdAt: 'desc' }
+    const redemption = await prisma.redemption.findUnique({
+      where: { id },
+      include: { user: true, reward: true }
     });
-    res.json(redemptions);
+
+    if (!redemption) {
+      return res.status(404).json({ message: 'Redemption not found' });
+    }
+
+    // Jika dibatalkan, kembalikan poin dan stok
+    if (status === 'CANCELLED' && redemption.status !== 'CANCELLED') {
+      await prisma.$transaction([
+        prisma.redemption.update({
+          where: { id },
+          data: { status }
+        }),
+        prisma.user.update({
+          where: { id: redemption.userId },
+          data: { totalPoints: { increment: redemption.pointsUsed } }
+        }),
+        prisma.reward.update({
+          where: { id: redemption.rewardId },
+          data: { stock: { increment: 1 } }
+        })
+      ]);
+    } else {
+      await prisma.redemption.update({
+        where: { id },
+        data: { status }
+      });
+    }
+
+    res.json({ message: `Redemption marked as ${status}` });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -123,5 +151,6 @@ module.exports = {
   updateReward,
   deleteReward,
   redeemReward,
-  getRedemptions
+  getRedemptions,
+  updateRedemptionStatus
 };
