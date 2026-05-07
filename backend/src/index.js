@@ -81,17 +81,26 @@ app.post('/api/upload', (req, res) => {
     if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
 
     try {
-      // Upload ke Cloudinary menggunakan stream (karena kita pakai memoryStorage)
+      // Upload ke Cloudinary menggunakan stream
       const uploadStream = cloudinary.uploader.upload_stream(
         { folder: 'wastebank_uploads' },
         (error, result) => {
-          if (error) return res.status(500).json({ message: 'Cloudinary Upload Error', error });
+          if (error) {
+            console.error('❌ [CLOUDINARY] Upload Error Details:', error);
+            return res.status(500).json({ 
+              message: 'Cloudinary Upload Error', 
+              error: error.message,
+              details: error 
+            });
+          }
+          console.log('✅ [CLOUDINARY] Upload Success:', result.secure_url);
           res.json({ imageUrl: result.secure_url });
         }
       );
 
       uploadStream.end(req.file.buffer);
     } catch (uploadErr) {
+      console.error('❌ [UPLOAD] Critical Error:', uploadErr);
       res.status(500).json({ message: 'Gagal upload ke Cloud', error: uploadErr.message });
     }
   });
