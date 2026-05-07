@@ -20,8 +20,45 @@ app.use(cors({
   origin: '*', 
   credentials: true
 }));
+const multer = require('multer');
+const sharp = require('sharp');
+const fs = require('fs');
+
 app.use(express.json());
 app.use('/uploads', express.static('public/uploads'));
+
+// Konfigurasi Multer (Simpan di memori dulu)
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 } // Limit 10MB
+});
+
+// Route Upload dengan Kompresi
+app.post('/api/upload', upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
+
+    const fileName = `${Date.now()}-compressed.jpg`;
+    const filePath = path.join('public/uploads', fileName);
+
+    // Pastikan folder uploads ada
+    if (!fs.existsSync('public/uploads')) {
+      fs.mkdirSync('public/uploads', { recursive: true });
+    }
+
+    // Proses Kompresi dengan Sharp
+    await sharp(req.file.buffer)
+      .resize(1080, null, { withoutEnlargement: true }) // Maks lebar 1080px
+      .jpeg({ quality: 80 }) // Kompres kualitas ke 80%
+      .toFile(filePath);
+
+    const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${fileName}`;
+    res.json({ imageUrl });
+  } catch (err) {
+    console.error('Compression Error:', err);
+    res.status(500).json({ message: 'Gagal memproses gambar', error: err.message });
+  }
+});
 
 // Ping route
 app.get('/api/ping', (req, res) => {
