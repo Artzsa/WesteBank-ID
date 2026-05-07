@@ -12,13 +12,19 @@ const PORT = process.env.PORT || 5000;
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
   ? process.env.ALLOWED_ORIGINS.split(',') 
-  : ['http://localhost:5173', 'http://localhost:5174', 'http://127.0.0.1:5173', 'http://127.0.0.1:5174', 'https://westebankid.cnfstore.id'];
+  : [
+      'http://localhost:5173', 
+      'http://localhost:5174', 
+      'http://127.0.0.1:5173', 
+      'http://127.0.0.1:5174', 
+      'https://westebankid.cnfstore.id',
+      'https://westbankid.cnfstore.id'
+    ];
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('vercel.app')) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -28,6 +34,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
+
 
 // Security Middlewares
 app.use(helmet({
@@ -100,8 +107,8 @@ const botRoutes = require('./routes/bot.routes');
 const priceController = require('./controllers/price.controller');
 const backupService = require('./services/backup.service');
 
-priceController.seedPrices();
-// backupService.performBackup(); // Uncomment to test backup on startup
+// priceController.seedPrices(); // Dihapus dari startup agar tidak lambat di Vercel
+// backupService.performBackup();
 
 app.use('/api/waste', wasteRoutes);
 app.use('/api/users', userRoutes);
@@ -114,8 +121,14 @@ app.use('/api/broadcast', broadcastRoutes);
 app.use('/api/rewards', rewardRoutes);
 app.use('/api/bot', botRoutes);
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+// Ping route
+app.get('/api/ping', (req, res) => res.json({ status: 'ok', message: 'WasteBank API is running' }));
 
-module.exports = { app, prisma };
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;
+
