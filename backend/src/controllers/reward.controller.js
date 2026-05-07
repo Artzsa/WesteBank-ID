@@ -130,11 +130,15 @@ const updateRedemptionStatus = async (req, res) => {
     });
 
     if (!redemption) {
-      return res.status(404).json({ message: 'Redemption not found' });
+      console.warn(`[REWARD] Redemption ID not found: ${id}`);
+      return res.status(404).json({ message: 'Data penukaran tidak ditemukan di database.' });
     }
+
+    console.log(`[REWARD] Found redemption for user: ${redemption.user.name}, reward: ${redemption.reward.name}`);
 
     // Jika dibatalkan, kembalikan poin dan stok
     if (status === 'CANCELLED' && redemption.status !== 'CANCELLED') {
+      console.log(`[REWARD] Processing CANCELLED status (Refund Points)`);
       await prisma.$transaction([
         prisma.redemption.update({
           where: { id },
@@ -150,15 +154,18 @@ const updateRedemptionStatus = async (req, res) => {
         })
       ]);
     } else {
+      console.log(`[REWARD] Processing status update: ${status}`);
       await prisma.redemption.update({
         where: { id },
         data: { status }
       });
     }
 
-    res.json({ message: `Redemption marked as ${status}` });
+    console.log(`[REWARD] Successfully updated status to ${status}`);
+    res.json({ message: `Berhasil mengubah status ke ${status}` });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('[REWARD] CRITICAL ERROR:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan pada database.', error: error.message });
   }
 };
 

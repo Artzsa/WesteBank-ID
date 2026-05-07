@@ -55,20 +55,18 @@ app.use('/uploads', express.static('public/uploads'));
 const multer = require('multer');
 const path = require('path');
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'public/uploads/'),
-  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
-});
+const cloudinary = require('./utils/cloudinary');
+const storage = multer.memoryStorage(); // Pakai memory agar kompetibel dengan Vercel
 
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png/;
+  const allowedTypes = /jpeg|jpg|png|webp/;
   const mimetype = allowedTypes.test(file.mimetype);
   const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
 
   if (mimetype && extname) {
     return cb(null, true);
   }
-  cb(new Error('Hanya file gambar (JPG/PNG) yang diperbolehkan!'));
+  cb(new Error('Hanya file gambar (JPG/PNG/WEBP) yang diperbolehkan!'));
 };
 
 const upload = multer({ 
@@ -78,13 +76,24 @@ const upload = multer({
 });
 
 app.post('/api/upload', (req, res) => {
-  upload.single('image')(req, res, (err) => {
-    if (err) {
-      return res.status(400).json({ message: err.message });
-    }
+  upload.single('image')(req, res, async (err) => {
+    if (err) return res.status(400).json({ message: err.message });
     if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
-    const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-    res.json({ imageUrl });
+
+    try {
+      // Upload ke Cloudinary menggunakan stream (karena kita pakai memoryStorage)
+      const uploadStream = cloudinary.uploader.upload_stream(
+        { folder: 'wastebank_uploads' },
+        (error, result) => {
+          if (error) return res.status(500).json({ message: 'Cloudinary Upload Error', error });
+          res.json({ imageUrl: result.secure_url });
+        }
+      );
+
+      uploadStream.end(req.file.buffer);
+    } catch (uploadErr) {
+      res.status(500).json({ message: 'Gagal upload ke Cloud', error: uploadErr.message });
+    }
   });
 });
 

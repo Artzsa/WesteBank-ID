@@ -142,12 +142,16 @@ const Rewards = () => {
 
   const handleUpdateRedemption = async (id, status) => {
     if (window.confirm(`Ubah status penukaran menjadi ${status}?`)) {
+      const url = `${API_URL}/rewards/redemptions/${id}`;
+      console.log('Attempting status update:', { url, id, status });
       try {
-        await axios.patch(`${API_URL}/rewards/redemptions/${id}`, { status });
+        await axios.patch(url, { status });
         toast.success(`Status berhasil diperbarui ke ${status}`);
         fetchData();
       } catch (err) {
-        toast.error('Gagal memperbarui status');
+        const errorMsg = err.response?.data?.message || err.response?.data?.error || 'Gagal memperbarui status';
+        toast.error(`❌ Error: ${errorMsg}`);
+        console.error('Update Redemption Error:', err);
       }
     }
   };
