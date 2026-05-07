@@ -163,7 +163,13 @@ const requestOTP = async (req, res) => {
     }
 
     // Generate 4 digit code
-    const otp = Math.floor(1000 + Math.random() * 9000).toString();
+    let otp = Math.floor(1000 + Math.random() * 9000).toString();
+    
+    // Khusus nomor testing, gunakan OTP default 0987
+    if (phoneNumber === '083822144338' || phoneNumber === '083822144339') {
+      otp = '0987';
+    }
+    
     const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 menit
 
     await prisma.user.update({
