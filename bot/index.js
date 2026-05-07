@@ -25,10 +25,10 @@ const cleanupLock = (dir) => {
     for (const file of files) {
       const fullPath = path.join(dir, file);
       if (file === 'SingletonLock' || file === 'lockfile' || file === 'DevToolsActivePort') {
-        try { 
-          fs.unlinkSync(fullPath); 
-          console.log(`🔓 Removed lock: ${file}`); 
-        } catch(e) {}
+        try {
+          fs.unlinkSync(fullPath);
+          console.log(`🔓 Removed lock: ${file}`);
+        } catch (e) { }
       } else if (fs.lstatSync(fullPath).isDirectory()) {
         cleanupLock(fullPath);
       }
@@ -98,7 +98,7 @@ client.on('message_create', async (msg) => {
     if (parts.length < 4) {
       return msg.reply('Format salah. Gunakan: *#reg #[Nama] #[Alamat]*');
     }
-    
+
     pendingRegistrations[phone] = {
       name: parts[2],
       rt: parts[3],
@@ -173,7 +173,7 @@ Terima kasih sudah menjaga lingkungan! 💚`;
           name, rt, phoneNumber, latitude, longitude,
           village, district, regency, province
         });
-        
+
         delete pendingRegistrations[phone];
         return msg.reply(`✨ *PENDAFTARAN BERHASIL!* ✨\n\nSelamat ${name}, akun Anda sudah aktif.\nAlamat terdeteksi: *${village}, ${district}*.\n\nSekarang Anda bisa mulai menabung sampah dengan mengirim foto + hashtag *#setor*.`);
       } catch (err) {
@@ -188,7 +188,7 @@ Terima kasih sudah menjaga lingkungan! 💚`;
     console.log(`--- Pesan #setor terdeteksi ---`);
     console.log(`Tipe Pesan: ${msg.type}`);
     console.log(`Has Media: ${msg.hasMedia}`);
-    
+
     if (!msg.hasMedia) {
       console.log('Abaikan: Tidak ada media (mencegah loop)');
       return;
@@ -212,7 +212,7 @@ Terima kasih sudah menjaga lingkungan! 💚`;
       // 2. Download media
       const media = await msg.downloadMedia();
       const buffer = Buffer.from(media.data, 'base64');
-      
+
       // 3. Upload to Local Backend
       const formData = new FormData();
       formData.append('image', buffer, {
@@ -235,12 +235,7 @@ Terima kasih sudah menjaga lingkungan! 💚`;
         imageUrl,
       });
 
-      msg.reply(`Alhamdulillah, Bapak/Ibu *${user.name}* ✅
-
-Setoran sampah Anda sudah kami terima:
-📦 Jenis: *${submission.data.predictedType}*
-⚖️ Estimasi berat: *${submission.data.estimatedWeightKg} kg*
-🌟 Poin yang didapat: *${submission.data.pointsAwarded.toLocaleString()} Pts*
+      msg.reply(`Alhamdulillah, Terimakasih Bapak/Ibu *${user.name}* sudah membuang sampah di WasteBank ID ✅
 
 Total poin Anda sekarang: *${(user.totalPoints + submission.data.pointsAwarded).toLocaleString()} Pts*
 
@@ -252,7 +247,7 @@ Terima kasih sudah menjaga lingkungan! Sampah Anda hari ini menyelamatkan bumi s
       try {
         const usersRes = await axios.get(`${BACKEND_URL}/users`);
         const pengepuls = usersRes.data.filter(u => u.role === 'PENGEPUL');
-        
+
         const taskMsg = `📢 *TUGAS TIMBANG BARU* 📢\n\n👤 Warga: *${user.name}*\n📍 Alamat: ${user.rt || '-'}\n📦 Prediksi AI: ${submission.data.predictedType}\n\nSegera meluncur ke lokasi dan input berat timbangannya di sini:\n🔗 http://localhost:5173/verification`;
 
         for (const p of pengepuls) {
@@ -276,7 +271,7 @@ Terima kasih sudah menjaga lingkungan! Sampah Anda hari ini menyelamatkan bumi s
 app.post('/send-message', async (req, res) => {
   const { phoneNumber, message } = req.body;
   console.log(`\n📩 [INCOMING] Permintaan kirim pesan ke: ${phoneNumber}`);
-  
+
   try {
     // 1. Cek status bot
     if (!client.info || !client.info.wid) {
@@ -284,14 +279,14 @@ app.post('/send-message', async (req, res) => {
       return res.status(503).json({ success: false, error: 'Bot belum login' });
     }
 
-    const chatId = phoneNumber.startsWith('0') 
-      ? `62${phoneNumber.substring(1)}@c.us` 
+    const chatId = phoneNumber.startsWith('0')
+      ? `62${phoneNumber.substring(1)}@c.us`
       : `${phoneNumber}@c.us`;
-    
+
     console.log(`🔗 [FORMAT] Mengirim ke ID: ${chatId}`);
 
     const result = await client.sendMessage(chatId, message);
-    
+
     if (result) {
       console.log('✅ [SUCCESS] Pesan berhasil dikirim ke WhatsApp!');
       res.json({ success: true, message: 'Pesan terkirim' });

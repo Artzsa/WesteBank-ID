@@ -121,16 +121,21 @@ const Dashboard = () => {
   };
 
   const kpis = isAdmin ? [
-    { label: 'Warga Aktif', val: stats.totalUsers.toLocaleString(), change: '↑ 12%', color: 'text-waste-green', icon: Users },
-    { label: 'Sampah Masuk', val: `${stats.totalWeightKg.toLocaleString()} Kg`, change: '↑ 8%', color: 'text-waste-green', icon: Scale },
-    { label: 'Poin Rakyat', val: (stats.totalPoints / 1000).toFixed(1) + 'k', change: '↑ 15%', color: 'text-waste-green', icon: TrendingUp },
-    { label: 'Kas Operasional', val: `Rp ${(stats.totalWeightKg * 200).toLocaleString()}`, change: '↑ 5%', color: 'text-waste-green', icon: Wallet },
+    { label: 'Warga Aktif', val: stats.totalUsers?.toLocaleString() || '0', change: '↑ 12%', color: 'text-waste-green', icon: Users },
+    { label: 'Sampah Masuk', val: `${stats.totalWeightKg?.toLocaleString() || '0'} Kg`, change: '↑ 8%', color: 'text-waste-green', icon: Scale },
+    { label: 'Poin Rakyat', val: ((stats.totalPoints || 0) / 1000).toFixed(1) + 'k', change: '↑ 15%', color: 'text-waste-green', icon: TrendingUp },
+    { label: 'Kas Operasional', val: `Rp ${(stats.totalWeightKg * 200 || 0).toLocaleString()}`, change: '↑ 5%', color: 'text-waste-green', icon: Wallet },
+  ] : (user?.role === 'PENGEPUL' ? [
+    { label: 'Tugas Timbang', val: userSubmissions.length.toString(), change: 'Total Setoran', color: 'text-waste-green', icon: Package },
+    { label: 'Status Aktif', val: 'Online', change: 'Pengepul RT', color: 'text-waste-green', icon: CheckCircle },
+    { label: 'Poin Anda', val: (user?.totalPoints || 0).toLocaleString(), change: 'Saldo Poin', color: 'text-waste-amber', icon: Wallet },
+    { label: 'Wilayah Kerja', val: user?.rt || '-', change: 'Lokasi RT', color: 'text-waste-green', icon: Users },
   ] : [
-    { label: 'Poin Anda', val: personalStats.totalPoints.toLocaleString(), change: 'Saldo Aktif', color: 'text-waste-green', icon: Wallet },
-    { label: 'Tabungan Sampah', val: `${personalStats.totalWaste.toFixed(1)} Kg`, change: 'Total Kontribusi', color: 'text-waste-green', icon: Scale },
-    { label: 'Status Setoran', val: userSubmissions.filter(s => s.status === 'PENDING').length.toString(), change: 'Menunggu Verifikasi', color: 'text-waste-amber', icon: Clock },
-    { label: 'Dampak Lingkungan', val: (personalStats.totalWaste * 2.5).toFixed(1), change: 'Kg CO2 Diselamatkan', color: 'text-waste-green', icon: TrendingUp },
-  ];
+    { label: 'Poin Anda', val: (personalStats.totalPoints || 0).toLocaleString(), change: 'Saldo Aktif', color: 'text-waste-green', icon: Wallet },
+    { label: 'Tabungan Sampah', val: `${(personalStats.totalWaste || 0).toFixed(1)} Kg`, change: 'Total Kontribusi', color: 'text-waste-green', icon: Scale },
+    { label: 'Status Setoran', val: (userSubmissions || []).filter(s => s.status === 'PENDING').length.toString(), change: 'Menunggu Verifikasi', color: 'text-waste-amber', icon: Clock },
+    { label: 'Dampak Lingkungan', val: ((personalStats.totalWaste || 0) * 2.5).toFixed(1), change: 'Kg CO2 Diselamatkan', color: 'text-waste-green', icon: TrendingUp },
+  ]);
 
   if (loading) return <div className="skeleton h-screen w-full rounded-3xl"></div>;
 
