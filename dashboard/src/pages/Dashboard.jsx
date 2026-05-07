@@ -51,18 +51,24 @@ const Dashboard = () => {
           const filteredPending = pendingRes.data.filter(sub => sub.status === 'VERIFIED');
           setStats({ ...statsRes.data, pendingSubmissions: filteredPending.length });
         } else {
-          // Fetch Warga Data
-          const [subRes, impactRes] = await Promise.all([
-            axios.get(`${API_URL}/waste/pending`), // We'll filter this for the user
-            axios.get(`${API_URL}/users/${user.phoneNumber}/impact`)
-          ]);
-          
-          const mySubmissions = subRes.data.filter(s => s.userId === user.id);
-          setUserSubmissions(mySubmissions);
-          setPersonalStats({
-            totalPoints: impactRes.data.totalPoints,
-            totalWaste: Object.values(impactRes.data.breakdown).reduce((a, b) => a + b, 0)
-          });
+          // Fetch Warga Data safely
+          try {
+            const [subRes, impactRes] = await Promise.all([
+              axios.get(`${API_URL}/waste/pending`).catch(() => ({ data: [] })),
+              axios.get(`${API_URL}/users/${user?.phoneNumber || 'none'}/impact`).catch(() => ({ data: { totalPoints: 0, breakdown: {} } }))
+            ]);
+            
+            const mySubmissions = Array.isArray(subRes.data) ? subRes.data.filter(s => s.userId === user?.id) : [];
+            setUserSubmissions(mySubmissions);
+            
+            const breakdown = impactRes.data?.breakdown || {};
+            setPersonalStats({
+              totalPoints: impactRes.data?.totalPoints || 0,
+              totalWaste: Object.values(breakdown).reduce((a, b) => a + (typeof b === 'number' ? b : 0), 0)
+            });
+          } catch (innerErr) {
+            console.error("Non-admin fetch error:", innerErr);
+          }
         }
       } catch (err) {
         console.error(err);
