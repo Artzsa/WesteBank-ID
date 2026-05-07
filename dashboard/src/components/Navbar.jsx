@@ -1,4 +1,4 @@
-import { Bell, User, Search, LogOut, Menu } from 'lucide-react';
+import { User, Search, LogOut, Menu } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -42,13 +42,6 @@ const Navbar = () => {
           <input type="text" placeholder="Cari data..." className="bg-transparent border-none focus:outline-none text-xs w-32 xl:w-48" />
         </div>
         
-        <button className="btn btn-ghost btn-circle btn-sm bg-base-100 border border-base-200">
-          <div className="indicator">
-            <Bell size={18} className="text-base-content/70" />
-            <span className="badge badge-primary badge-xs indicator-item"></span>
-          </div>
-        </button>
-
         <div className="flex items-center gap-2 md:gap-3 pl-2">
           <div className="text-right hidden sm:block">
             <div className="text-xs font-bold truncate max-w-[120px]">{user?.name || 'User'}</div>
@@ -66,7 +59,6 @@ const Navbar = () => {
                 <div className="text-[10px] font-bold text-base-content/30 uppercase tracking-widest">Akun Saya</div>
               </li>
               <li><button onClick={() => navigate('/profile')} className="py-2 px-4 rounded-xl text-left w-full">Profil Saya</button></li>
-              <li className="lg:hidden"><a className="py-2 px-4 rounded-xl">Pemberitahuan</a></li>
               <li className="mt-2 pt-2 border-t border-base-100">
                 <button 
                   onClick={handleLogout}

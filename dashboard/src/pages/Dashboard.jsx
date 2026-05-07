@@ -4,6 +4,29 @@ import API_URL from '../utils/api';
 import { toast } from 'react-toastify';
 import { Package, Trash2, FileText, ArrowUpRight, TrendingUp, Users, Scale, Wallet, CheckCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { 
+  Chart as ChartJS, 
+  CategoryScale, 
+  LinearScale, 
+  BarElement, 
+  Title, 
+  Tooltip, 
+  Legend,
+  ArcElement
+} from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+
+ChartJS.register(
+  CategoryScale, 
+  LinearScale, 
+  BarElement, 
+  Title, 
+  Tooltip, 
+  Legend,
+  ArcElement
+);
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -48,6 +71,71 @@ const Dashboard = () => {
     { label: 'Target Jemput', val: '3 Lokasi', change: 'Today', color: 'text-waste-amber', icon: Scale },
   ];
 
+  const generatePDF = () => {
+    if (!stocks || stocks.length === 0) {
+      toast.error('Data stok kosong, tidak ada yang bisa dicetak.');
+      return;
+    }
+
+    const doc = new jsPDF();
+    const date = new Date().toLocaleDateString('id-ID');
+    
+    doc.setFontSize(20);
+    doc.text('WasteBank ID - Laporan Stok Sampah', 14, 22);
+    doc.setFontSize(11);
+    doc.text(`Tanggal: ${date}`, 14, 30);
+    doc.text(`Dicetak oleh: ${user?.name || 'Admin'}`, 14, 35);
+    
+    const tableColumn = ["Wilayah (RT)", "Plastik (Kg)", "Kertas (Kg)", "Logam (Kg)", "Kaca (Kg)", "Minyak (Lt)", "Total"];
+    const tableRows = stocks.map(stock => {
+      const total = (stock.totalPlasticKg || 0) + (stock.totalPaperKg || 0) + (stock.totalMetalKg || 0) + (stock.totalGlassKg || 0) + (stock.totalOilKg || 0);
+      return [
+        stock.rt,
+        (stock.totalPlasticKg || 0).toFixed(1),
+        (stock.totalPaperKg || 0).toFixed(1),
+        (stock.totalMetalKg || 0).toFixed(1),
+        (stock.totalGlassKg || 0).toFixed(1),
+        (stock.totalOilKg || 0).toFixed(1),
+        total.toFixed(1)
+      ];
+    });
+
+    doc.autoTable({
+      head: [tableColumn],
+      body: tableRows,
+      startY: 45,
+      theme: 'grid',
+      headStyles: { fillColor: [46, 204, 113] }
+    });
+
+    doc.save(`Laporan_Stok_WasteBank_${date}.pdf`);
+    toast.success('Laporan PDF berhasil diunduh!');
+  };
+
+  const chartData = {
+    labels: ['Plastik', 'Kertas', 'Logam', 'Kaca', 'Minyak'],
+    datasets: [
+      {
+        label: 'Total Stok (Kg)',
+        data: [
+          stocks.reduce((acc, curr) => acc + (curr.totalPlasticKg || 0), 0),
+          stocks.reduce((acc, curr) => acc + (curr.totalPaperKg || 0), 0),
+          stocks.reduce((acc, curr) => acc + (curr.totalMetalKg || 0), 0),
+          stocks.reduce((acc, curr) => acc + (curr.totalGlassKg || 0), 0),
+          stocks.reduce((acc, curr) => acc + (curr.totalOilKg || 0), 0),
+        ],
+        backgroundColor: [
+          '#2ecc71', // Green
+          '#3498db', // Blue
+          '#f1c40f', // Yellow
+          '#e67e22', // Orange
+          '#e74c3c', // Red
+        ],
+        borderRadius: 8,
+      },
+    ],
+  };
+
 
   return (
     <div className="space-y-6 md:space-y-10 animate-in fade-in duration-700 pb-12">
@@ -72,6 +160,29 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 md:gap-10">
+        {/* Statistics Chart */}
+        <div className="xl:col-span-3 bg-white p-6 md:p-8 rounded-3xl border border-base-200 shadow-sm">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h2 className="font-black text-base tracking-tight text-base-content">Volume Sampah Terkumpul</h2>
+              <p className="text-[11px] text-base-content/40 font-medium">Data akumulasi dari seluruh wilayah (RT)</p>
+            </div>
+            <div className="bg-waste-green-light px-3 py-1 rounded-lg">
+              <TrendingUp size={14} className="text-waste-green" />
+            </div>
+          </div>
+          <div className="h-[250px] w-full">
+            <Bar 
+              data={chartData} 
+              options={{ 
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }
+              }} 
+            />
+          </div>
+        </div>
+
         {/* Main Stock Table */}
         <div className="xl:col-span-2 bg-white rounded-3xl border border-base-200 shadow-sm overflow-hidden">
           <div className="p-6 md:p-8 border-b border-base-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -79,8 +190,12 @@ const Dashboard = () => {
               <h2 className="font-black text-base tracking-tight text-base-content">Stok per Wilayah (RT)</h2>
               <p className="text-[11px] text-base-content/40 font-medium">Data diperbarui hari ini, 17:30 WIB</p>
             </div>
-            <button className="text-[11px] font-black text-waste-green bg-waste-green-light px-4 py-2 rounded-xl hover:bg-waste-green transition-colors hover:text-white">
-              Cetak Laporan
+            <button 
+              onClick={generatePDF}
+              className="text-[11px] font-black text-white bg-waste-green px-4 py-2 rounded-xl hover:bg-waste-green-mid transition-colors shadow-lg shadow-waste-green/20 flex items-center gap-2"
+            >
+              <FileText size={14} />
+              Cetak Laporan PDF
             </button>
           </div>
           <div className="overflow-x-auto">

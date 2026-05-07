@@ -26,12 +26,17 @@ const Finances = () => {
   };
 
   const handleDownloadPDF = () => {
-    const doc = jsPDF();
-    const date = new Date().toLocaleDateString();
+    if (!stats) {
+      toast.error('Data keuangan belum siap untuk diunduh.');
+      return;
+    }
+
+    const doc = new jsPDF();
+    const date = new Date().toLocaleDateString('id-ID');
     
     // Header
     doc.setFontSize(22);
-    doc.text('Laporan Keuangan Bank Sampah ID', 14, 20);
+    doc.text('WasteBank ID - Laporan Keuangan', 14, 20);
     doc.setFontSize(10);
     doc.text(`Dicetak pada: ${date}`, 14, 28);
     
@@ -44,24 +49,31 @@ const Finances = () => {
         ['Tabungan Warga (Pts)', `${stats.totalNetPoints.toLocaleString()}`],
         ['Total Nilai Sampah', `Rp ${stats.totalGrossValue.toLocaleString()}`],
       ],
+      theme: 'grid',
+      headStyles: { fillColor: [46, 204, 113] }
     });
     
     // Transaction Table
-    doc.text('Riwayat Transaksi Terakhir', 14, doc.autoTable.previous.finalY + 15);
-    doc.autoTable({
-      startY: doc.autoTable.previous.finalY + 20,
-      head: [['Tanggal', 'Warga', 'Jenis', 'Pot. Op', 'Poin Bersih']],
-      body: stats.recentTransactions.map(tr => [
-        new Date(tr.createdAt).toLocaleDateString(),
-        tr.user.name,
-        tr.predictedType,
-        `Rp ${tr.operationalCut.toLocaleString()}`,
-        `${tr.pointsAwarded.toLocaleString()} Pts`
-      ]),
-    });
+    if (stats.recentTransactions && stats.recentTransactions.length > 0) {
+      doc.text('Riwayat Transaksi Terakhir', 14, doc.autoTable.previous.finalY + 15);
+      doc.autoTable({
+        startY: doc.autoTable.previous.finalY + 20,
+        head: [['Tanggal', 'Warga', 'Jenis', 'Pot. Op', 'Poin Bersih']],
+        body: stats.recentTransactions.map(tr => [
+          new Date(tr.createdAt).toLocaleDateString('id-ID'),
+          tr.user.name,
+          tr.predictedType,
+          `Rp ${tr.operationalCut.toLocaleString()}`,
+          `${tr.pointsAwarded.toLocaleString()} Pts`
+        ]),
+        theme: 'striped'
+      });
+    }
     
     doc.save(`Laporan_Keuangan_WasteBank_${date}.pdf`);
+    toast.success('Laporan keuangan berhasil diunduh!');
   };
+
 
   if (loading) return <div className="skeleton h-96 w-full rounded-3xl"></div>;
 
