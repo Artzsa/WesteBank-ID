@@ -51,23 +51,22 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
       .jpeg({ quality: 80 })
       .toBuffer();
 
-    // 2. Upload ke Cloudinary menggunakan stream
-    const uploadStream = cloudinary.uploader.upload_stream(
-      { 
-        folder: 'wastebank-id',
-        resource_type: 'image'
-      },
-      (error, result) => {
-        if (error) {
-          console.error('Cloudinary Error:', error);
-          return res.status(500).json({ message: 'Gagal simpan ke Cloud', error });
-        }
-        // Kirim URL Cloudinary yang permanen
-        res.json({ imageUrl: result.secure_url });
-      }
-    );
+    // 2. Upload ke Cloudinary menggunakan Promise agar Vercel menunggu sampai selesai
+    const uploadToCloudinary = (buffer) => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: 'wastebank-id', resource_type: 'image' },
+          (error, result) => {
+            if (result) resolve(result);
+            else reject(error);
+          }
+        );
+        stream.end(buffer);
+      });
+    };
 
-    uploadStream.end(compressedBuffer);
+    const result = await uploadToCloudinary(compressedBuffer);
+    res.json({ imageUrl: result.secure_url });
   } catch (err) {
     console.error('Upload Process Error:', err);
     res.status(500).json({ message: 'Gagal memproses gambar', error: err.message });

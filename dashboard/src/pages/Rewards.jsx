@@ -95,6 +95,34 @@ const Rewards = () => {
     }
   };
 
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
+
+  const handleRedeem = async (reward) => {
+    if (user.totalPoints < reward.pointsRequired) {
+      return toast.error('Poin Anda tidak cukup, ayo setor sampah lagi! ♻️');
+    }
+
+    if (reward.stock <= 0) {
+      return toast.error('Maaf, stok barang ini sedang habis.');
+    }
+
+    if (window.confirm(`Yakin ingin menukar ${reward.pointsRequired} poin dengan ${reward.name}?`)) {
+      try {
+        await axios.post(`${API_URL}/rewards/redeem`, {
+          userId: user.id,
+          rewardId: reward.id
+        });
+        toast.success('Berhasil tukar poin! Silakan ambil hadiah di Bank Sampah.');
+        fetchData();
+        // Update local user points if needed or refresh page
+        window.location.reload(); 
+      } catch (err) {
+        toast.error(err.response?.data?.message || 'Gagal tukar poin');
+      }
+    }
+  };
+
   const handleDelete = async (id) => {
     if (window.confirm('Yakin ingin menghapus reward ini?')) {
       try {
@@ -118,34 +146,42 @@ const Rewards = () => {
             <div className="p-2 bg-waste-green-light text-waste-green rounded-xl">
                <Gift size={20} />
             </div>
-            <h1 className="text-2xl font-black tracking-tight text-base-content">Katalog Reward</h1>
+            <h1 className="text-2xl font-black tracking-tight text-base-content">
+              {isAdmin ? 'Manajemen Reward' : 'Tukar Poin Keuntungan'}
+            </h1>
           </div>
-          <p className="text-xs text-base-content/50 font-medium">Kelola stok sembako, token, dan hadiah untuk tukar poin warga.</p>
+          <p className="text-xs text-base-content/50 font-medium">
+            {isAdmin ? 'Kelola stok sembako, token, dan hadiah untuk warga.' : `Anda memiliki ${user?.totalPoints?.toLocaleString()} Poin aktif.`}
+          </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-4">
-          <div className="flex bg-base-100 p-1 rounded-2xl">
-            <button 
-              onClick={() => setActiveTab('catalog')}
-              className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${activeTab === 'catalog' ? 'bg-white text-waste-green shadow-sm' : 'text-base-content/40 hover:text-base-content'}`}
-            >
-              Katalog
-            </button>
-            <button 
-              onClick={() => setActiveTab('redemptions')}
-              className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${activeTab === 'redemptions' ? 'bg-white text-waste-green shadow-sm' : 'text-base-content/40 hover:text-base-content'}`}
-            >
-              Penukaran
-            </button>
-          </div>
+          {isAdmin && (
+            <div className="flex bg-base-100 p-1 rounded-2xl">
+              <button 
+                onClick={() => setActiveTab('catalog')}
+                className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${activeTab === 'catalog' ? 'bg-white text-waste-green shadow-sm' : 'text-base-content/40 hover:text-base-content'}`}
+              >
+                Katalog
+              </button>
+              <button 
+                onClick={() => setActiveTab('redemptions')}
+                className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${activeTab === 'redemptions' ? 'bg-white text-waste-green shadow-sm' : 'text-base-content/40 hover:text-base-content'}`}
+              >
+                Riwayat Tukar
+              </button>
+            </div>
+          )}
 
-          <button 
-            onClick={() => handleOpenModal()}
-            className="btn btn-sm h-10 px-6 bg-waste-green hover:bg-waste-green-mid text-white border-none rounded-xl font-black text-xs gap-2 shadow-lg shadow-waste-green/20"
-          >
-            <Plus size={16} />
-            Tambah Barang
-          </button>
+          {isAdmin && (
+            <button 
+              onClick={() => handleOpenModal()}
+              className="btn btn-sm h-10 px-6 bg-waste-green hover:bg-waste-green-mid text-white border-none rounded-xl font-black text-xs gap-2 shadow-lg shadow-waste-green/20"
+            >
+              <Plus size={16} />
+              Tambah Barang
+            </button>
+          )}
         </div>
       </div>
 
@@ -174,35 +210,43 @@ const Rewards = () => {
               <div className="p-6 space-y-4">
                 <div>
                   <h3 className="font-black text-lg text-base-content line-clamp-1">{reward.name}</h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Coins size={14} className="text-waste-amber" />
-                    <span className="text-sm font-black text-waste-amber">{reward.pointsRequired.toLocaleString()} Poin</span>
+                  <div className="flex items-center justify-between mt-1">
+                    <div className="flex items-center gap-1">
+                      <Zap size={14} className="text-waste-amber" />
+                      <span className="text-sm font-black text-waste-amber">{reward.pointsRequired.toLocaleString()} Pts</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-base-content/30 uppercase">Stok: {reward.stock}</span>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-2 border-t border-base-100">
-                  <div className="flex flex-col">
-                    <span className="text-[10px] font-black text-base-content/30 uppercase tracking-widest">Stok Tersedia</span>
-                    <span className={`text-sm font-black ${reward.stock < 5 ? 'text-waste-coral' : 'text-base-content'}`}>
-                      {reward.stock} unit
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center gap-1">
+                {isAdmin ? (
+                  <div className="flex items-center gap-2 pt-2 border-t border-base-100">
                     <button 
                       onClick={() => handleOpenModal(reward)}
-                      className="p-2 hover:bg-base-100 rounded-xl text-base-content/30 hover:text-base-content transition-all"
+                      className="btn btn-sm flex-1 bg-base-100 hover:bg-base-200 border-none rounded-xl text-[10px] font-black"
                     >
-                      <Edit3 size={18} />
+                      <Edit3 size={14} className="mr-1" /> Edit
                     </button>
                     <button 
                       onClick={() => handleDelete(reward.id)}
-                      className="p-2 hover:bg-rose-50 rounded-xl text-base-content/30 hover:text-rose-600 transition-all"
+                      className="btn btn-sm bg-rose-50 hover:bg-rose-100 border-none rounded-xl text-rose-600 text-[10px] font-black"
                     >
-                      <Trash2 size={18} />
+                      <Trash2 size={14} />
                     </button>
                   </div>
-                </div>
+                ) : (
+                  <button 
+                    onClick={() => handleRedeem(reward)}
+                    disabled={reward.stock <= 0}
+                    className={`btn btn-sm w-full h-10 rounded-xl border-none font-black text-xs shadow-lg transition-all ${
+                      reward.stock > 0 
+                        ? 'bg-waste-green hover:bg-waste-green-mid text-white shadow-waste-green/20' 
+                        : 'bg-base-200 text-base-content/30 shadow-none'
+                    }`}
+                  >
+                    {reward.stock > 0 ? 'Tukar Sekarang' : 'Stok Habis'}
+                  </button>
+                )}
               </div>
             </div>
           ))}

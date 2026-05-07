@@ -13,7 +13,8 @@ const Sidebar = () => {
       title: 'Utama',
       links: [
         { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-        { to: '/verification', icon: CheckSquare, label: 'Verifikasi Sampah' },
+        ...(user?.role !== 'WARGA' ? [{ to: '/verification', icon: CheckSquare, label: 'Verifikasi Sampah' }] : []),
+        { to: '/rewards', icon: Gift, label: 'Tukar Poin' },
         ...(isSuperAdmin ? [{ to: '/leaderboard', icon: BarChart3, label: 'Leaderboard' }] : []),
       ]
     },
@@ -24,7 +25,6 @@ const Sidebar = () => {
         ...(isAdmin ? [
           { to: '/users', icon: Users, label: 'Manajemen Warga' },
           ...(isSuperAdmin ? [{ to: '/broadcast', icon: Megaphone, label: 'Pusat Broadcast' }] : []),
-          { to: '/rewards', icon: Gift, label: 'Katalog Reward' }
         ] : []),
       ]
     },
