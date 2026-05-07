@@ -4,7 +4,7 @@ import API_URL from '../utils/api';
 import { toast } from 'react-toastify';
 import { Wallet, TrendingUp, ArrowDownRight, ArrowUpRight, History, Download, DollarSign, PieChart as PieChartIcon } from 'lucide-react';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 const Finances = () => {
   const [stats, setStats] = useState(null);
@@ -41,7 +41,7 @@ const Finances = () => {
     doc.text(`Dicetak pada: ${date}`, 14, 28);
     
     // KPI Table
-    doc.autoTable({
+    autoTable(doc, {
       startY: 35,
       head: [['Kategori', 'Nilai']],
       body: [
@@ -55,9 +55,9 @@ const Finances = () => {
     
     // Transaction Table
     if (stats.recentTransactions && stats.recentTransactions.length > 0) {
-      doc.text('Riwayat Transaksi Terakhir', 14, doc.autoTable.previous.finalY + 15);
-      doc.autoTable({
-        startY: doc.autoTable.previous.finalY + 20,
+      doc.text('Riwayat Transaksi Terakhir', 14, (doc).lastAutoTable.finalY + 15);
+      autoTable(doc, {
+        startY: (doc).lastAutoTable.finalY + 20,
         head: [['Tanggal', 'Warga', 'Jenis', 'Pot. Op', 'Poin Bersih']],
         body: stats.recentTransactions.map(tr => [
           new Date(tr.createdAt).toLocaleDateString('id-ID'),
@@ -69,6 +69,7 @@ const Finances = () => {
         theme: 'striped'
       });
     }
+
     
     doc.save(`Laporan_Keuangan_WasteBank_${date}.pdf`);
     toast.success('Laporan keuangan berhasil diunduh!');

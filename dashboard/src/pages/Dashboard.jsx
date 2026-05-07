@@ -16,7 +16,7 @@ import {
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 ChartJS.register(
   CategoryScale, 
@@ -100,7 +100,7 @@ const Dashboard = () => {
       ];
     });
 
-    doc.autoTable({
+    autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
       startY: 45,
