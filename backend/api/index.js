@@ -1,53 +1,51 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const helmet = require('helmet');
+const path = require('path');
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
 
-// Global Error Handler for Startup
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-});
+// Security Middlewares
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+  contentSecurityPolicy: false,
+}));
 
 // Middleware Dasar
 app.use(cors({
-  origin: '*', // Izinkan semua sementara untuk debug
+  origin: '*', 
   credentials: true
 }));
 app.use(express.json());
+app.use('/uploads', express.static('public/uploads'));
 
-// Ping route (Sangat simple untuk tes awal)
+// Ping route
 app.get('/api/ping', (req, res) => {
-  res.json({ 
-    status: 'ok', 
-    env: process.env.NODE_ENV,
-    vercel: !!process.env.VERCEL
-  });
+  res.json({ status: 'ok', message: 'WasteBank API is running' });
 });
 
-// Import route lain secara dinamis agar jika satu error tidak mematikan semuanya
+// Routes
 try {
-  const prisma = require('../src/utils/prisma');
-  const wasteRoutes = require('../src/routes/waste.routes');
-  const userRoutes = require('../src/routes/user.routes');
-  
-  app.use('/api/waste', wasteRoutes);
-  app.use('/api/users', userRoutes);
-  
-  // Route lainnya...
+  app.use('/api/waste', require('../src/routes/waste.routes'));
+  app.use('/api/users', require('../src/routes/user.routes'));
   app.use('/api/leaderboard', require('../src/routes/leaderboard.routes'));
   app.use('/api/collector', require('../src/routes/collector.routes'));
   app.use('/api/pickups', require('../src/routes/pickup.routes'));
   app.use('/api/prices', require('../src/routes/price.routes'));
+  app.use('/api/ai', require('../src/routes/ai.routes'));
+  app.use('/api/broadcast', require('../src/routes/broadcast.routes'));
+  app.use('/api/rewards', require('../src/routes/reward.routes'));
+  app.use('/api/bot', require('../src/routes/bot.routes'));
 } catch (err) {
-  console.error('Error loading routes or prisma:', err.message);
-  app.get('/api/error', (req, res) => res.json({ error: err.message, stack: err.stack }));
+  console.error('Error loading routes:', err.message);
 }
 
 // Export untuk Vercel
 module.exports = app;
+
 
 
