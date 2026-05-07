@@ -22,40 +22,54 @@ app.use(cors({
 }));
 const multer = require('multer');
 const sharp = require('sharp');
-const fs = require('fs');
+const cloudinary = require('cloudinary').v2;
+
+// Cloudinary Configuration
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 app.use(express.json());
 app.use('/uploads', express.static('public/uploads'));
 
-// Konfigurasi Multer (Simpan di memori dulu)
+// Konfigurasi Multer (Memori)
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 } // Limit 10MB
+  limits: { fileSize: 10 * 1024 * 1024 }
 });
 
-// Route Upload dengan Kompresi
+// Route Upload ke Cloudinary dengan Kompresi Sharp
 app.post('/api/upload', upload.single('image'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
 
-    const fileName = `${Date.now()}-compressed.jpg`;
-    const filePath = path.join('public/uploads', fileName);
+    // 1. Kompres di server dulu agar upload ke Cloudinary lebih ringan
+    const compressedBuffer = await sharp(req.file.buffer)
+      .resize(1080, null, { withoutEnlargement: true })
+      .jpeg({ quality: 80 })
+      .toBuffer();
 
-    // Pastikan folder uploads ada
-    if (!fs.existsSync('public/uploads')) {
-      fs.mkdirSync('public/uploads', { recursive: true });
-    }
+    // 2. Upload ke Cloudinary menggunakan stream
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { 
+        folder: 'wastebank-id',
+        resource_type: 'image'
+      },
+      (error, result) => {
+        if (error) {
+          console.error('Cloudinary Error:', error);
+          return res.status(500).json({ message: 'Gagal simpan ke Cloud', error });
+        }
+        // Kirim URL Cloudinary yang permanen
+        res.json({ imageUrl: result.secure_url });
+      }
+    );
 
-    // Proses Kompresi dengan Sharp
-    await sharp(req.file.buffer)
-      .resize(1080, null, { withoutEnlargement: true }) // Maks lebar 1080px
-      .jpeg({ quality: 80 }) // Kompres kualitas ke 80%
-      .toFile(filePath);
-
-    const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${fileName}`;
-    res.json({ imageUrl });
+    uploadStream.end(compressedBuffer);
   } catch (err) {
-    console.error('Compression Error:', err);
+    console.error('Upload Process Error:', err);
     res.status(500).json({ message: 'Gagal memproses gambar', error: err.message });
   }
 });
